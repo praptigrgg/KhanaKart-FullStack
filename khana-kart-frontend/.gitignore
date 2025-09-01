@@ -1,1 +1,21 @@
-/khana-kart-frontend/node_modules/
+# Node modules (React)
+khana-kart-frontend/node_modules/
+khana-kart-frontend/.env
+khana-kart-frontend/build/
+khana-kart-frontend/.DS_Store
+
+# Laravel (backend)
+backend/vendor/
+backend/node_modules/
+backend/.env
+backend/.DS_Store
+backend/storage/*.key
+backend/storage/logs/*.log
+backend/public/storage
+backend/bootstrap/cache/*.php
+
+# System files
+.DS_Store
+Thumbs.db
+*.log
+.env
