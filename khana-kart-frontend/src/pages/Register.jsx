@@ -24,10 +24,9 @@ export default function Register() {
 
     try {
       const res = await api.post('/register', form)
-      const token = res?.data?.token
-      const role = res?.data?.role || form.role
-      const name = res?.data?.name || form.name
-
+const token = res?.data?.token
+   const role = res?.data?.user?.role || form.role
+const name = res?.data?.user?.name || form.name
       if (token) {
         saveAuth(token, role, name)
         navigate('/dashboard')

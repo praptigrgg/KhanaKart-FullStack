@@ -30,3 +30,19 @@ api.interceptors.response.use(
     return Promise.reject(err)
   }
 )
+
+export async function markPaid(orderOrId, paymentMethod = 'cash') {
+  const orderId = typeof orderOrId === 'object' ? orderOrId.id : orderOrId;
+  if (!orderId) {
+    throw new Error('Order ID is required to mark payment');
+  }
+  if (!['cash', 'card', 'qr'].includes(paymentMethod)) {
+    throw new Error('Invalid payment method');
+  }
+
+  const response = await api.put(`/orders/${orderId}/pay`, {
+    payment_method: paymentMethod, 
+  });
+
+  return response.data;
+}

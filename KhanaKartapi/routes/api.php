@@ -54,7 +54,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::put('/orders/{orderId}/items/{menuItemId}/status', [OrderItemController::class, 'updateItemStatus']);
     Route::put('/order-items/{id}/status', [OrderItemController::class, 'updateStatus']);
-
+    Route::middleware(['role:admin,waiter'])->group(function () {
+        Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
+    });
 
     Route::post('/payment/create', [PaymentController::class, 'createPaymentRequest']);
     Route::get('/payment/callback', [PaymentController::class, 'paymentCallback'])->name('payment.callback');

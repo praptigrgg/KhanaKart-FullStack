@@ -109,6 +109,19 @@ class OrderController extends Controller
             'order' => $order->append('total_amount'),
         ]);
     }
+public function destroy($id)
+{
+    $order = Order::findOrFail($id);
+
+    // Optional: Prevent deletion if order is already paid
+    if ($order->is_paid) {
+        return response()->json(['message' => 'Cannot delete a paid order'], 400);
+    }
+
+    $order->delete();
+
+    return response()->json(['message' => 'Order deleted successfully']);
+}
 
     public function markPaid(Request $request, $id)
     {
