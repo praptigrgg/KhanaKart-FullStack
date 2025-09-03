@@ -13,35 +13,36 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     public function register(Request $request)
-    {
-        $request->validate(
-            [
-                'name' => 'required',
-                'email' => 'required|email|unique:users',
-                'password' => 'required|min:6|confirmed',
-                'role' => 'required|in:admin,waiter,kitchen',
-            ],
-            [
-                'password.confirmed' => 'Passwords do not match.',
-            ]
-        );
+{
+    $request->validate([
+        'name' => 'required',
+        'email' => 'required|email|unique:users',
+        'password' => 'required|min:6|confirmed',
+        'role' => 'required|in:admin,waiter,kitchen',
+    ], [
+        'password.confirmed' => 'Passwords do not match.',
+    ]);
 
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => bcrypt($request->password),
+        'role' => $request->role,
+    ]);
 
+    $token = $user->createToken('api_token')->plainTextToken;
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'role' => $request->role,
-        ]);
-
-        $token = $user->createToken('api_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'User registered successfully!',
-            'token' => $token
-        ], 201);
-    }
+    return response()->json([
+        'message' => 'User registered successfully!',
+        'token' => $token,
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+        ],
+    ], 201);
+}
 
     public function login(Request $request)
 {

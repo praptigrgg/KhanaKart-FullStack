@@ -19,8 +19,8 @@ export default function Login() {
     try {
       const res = await api.post('/login', form)
       const token = res?.data?.token
-      const role = res?.data?.role
-      const name = res?.data?.name
+      const role = res?.data?.user?.role    // <-- fixed here
+      const name = res?.data?.user?.name    // <-- fixed here
 
       if (token) {
         saveAuth(token, role, name)

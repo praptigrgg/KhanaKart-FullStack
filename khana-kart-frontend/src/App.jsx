@@ -5,6 +5,7 @@ import MenuItems from './pages/MenuItems';
 import Orders from './pages/Orders';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Users from './pages/Users'
 
 
 import PrivateRoute from './components/PrivateRoute';
@@ -42,10 +43,12 @@ export default function App() {
         {shouldShowSidebar ? (
           <main className={`main-content ${sidebarOpen ? 'sidebar-open' : ''}`}>
             <Routes>
-           
+
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
               <Route path="/menu-items" element={<PrivateRoute><MenuItems /></PrivateRoute>} />
               <Route path="/orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
+              <Route path="/users" element={<Users />} />
+
               <Route path="*" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
             </Routes>
           </main>

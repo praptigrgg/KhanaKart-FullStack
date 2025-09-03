@@ -43,6 +43,10 @@ public function isKitchen()
         'email',
         'password',
         'role',
+        'age',
+        'temporary_address',
+        'permanent_address',
+        'contact_number',
     ];
 
     /**
