@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
+import './Auth.css'
 
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [form, setForm] = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const navigate = useNavigate()
@@ -15,16 +15,19 @@ export default function Login() {
     e.preventDefault()
     setLoading(true)
     setError(null)
+
     try {
-      const res = await api.post('/login', { email, password })
+      const res = await api.post('/login', form)
       const token = res?.data?.token
-      const role = res?.data?.user?.role
-      const name = res?.data?.user?.name
+      const role = res?.data?.role
+      const name = res?.data?.name
 
-      if (!token || !role || !name) throw new Error('Login response missing data')
-
-      saveAuth(token, role, name)
-      navigate('/dashboard')
+      if (token) {
+        saveAuth(token, role, name)
+        navigate('/dashboard')
+      } else {
+        setError('Login failed: No token returned')
+      }
     } catch (err) {
       setError(err?.response?.data?.message || err.message)
     } finally {
@@ -33,36 +36,57 @@ export default function Login() {
   }
 
   return (
-    <div className="card" style={{ maxWidth: 420, margin: '40px auto' }}>
-      <h2>Login</h2>
-      <form onSubmit={onSubmit}>
-        <div className="field">
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div className="field">
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button className="btn" disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-        {error && (
-          <p style={{ color: '#fca5a5', marginTop: 10 }}>
-            {error}
+    <div className="auth-container">
+      <div className="auth-card">
+        <header className="auth-header">
+          <h2>Login</h2>
+          <p>Welcome back! Please login to your account.</p>
+        </header>
+
+        <form className="auth-form" onSubmit={onSubmit} noValidate>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              value={form.email}
+              onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+              required
+              className={error ? 'error' : ''}
+              autoComplete="email"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              value={form.password}
+              onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+              required
+              className={error ? 'error' : ''}
+              autoComplete="current-password"
+            />
+          </div>
+
+          <button className="auth-button" disabled={loading}>
+            {loading && <span className="spinner" />}
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+
+          {error && <p className="error-message">{error}</p>}
+        </form>
+
+        <footer className="auth-footer">
+          <p>
+            Don't have an account?{' '}
+            <Link to="/register" className="auth-link">
+              Register here
+            </Link>
           </p>
-        )}
-      </form>
+        </footer>
+      </div>
     </div>
   )
 }

@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
+import './Auth.css'
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -20,10 +21,10 @@ export default function Register() {
     e.preventDefault()
     setLoading(true)
     setError(null)
+
     try {
       const res = await api.post('/register', form)
       const token = res?.data?.token
-      // Use role and name from API response if available; otherwise, fallback to form data
       const role = res?.data?.role || form.role
       const name = res?.data?.name || form.name
 
@@ -41,66 +42,97 @@ export default function Register() {
   }
 
   return (
-    <div className="card" style={{ maxWidth: 420, margin: '40px auto' }}>
-      <h2>Register</h2>
-      <form onSubmit={onSubmit}>
-        <div className="field">
-          <label>Name</label>
-          <input
-            value={form.name}
-            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-            required
-          />
-        </div>
-        <div className="field">
-          <label>Email</label>
-          <input
-            type="email"
-            value={form.email}
-            onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-            required
-          />
-        </div>
-        <div className="field">
-          <label>Password</label>
-          <input
-            type="password"
-            value={form.password}
-            onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-            required
-          />
-        </div>
-        <div className="field">
-          <label>Confirm Password</label>
-          <input
-            type="password"
-            value={form.password_confirmation}
-            onChange={e =>
-              setForm(f => ({ ...f, password_confirmation: e.target.value }))
-            }
-            required
-          />
-        </div>
-        <div className="field">
-          <label>Role</label>
-          <select
-            value={form.role}
-            onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
-          >
-            <option value="admin">Admin</option>
-            <option value="waiter">Waiter</option>
-            <option value="kitchen">Kitchen</option>
-          </select>
-        </div>
-        <button className="btn" disabled={loading}>
-          {loading ? 'Registering...' : 'Register'}
-        </button>
-        {error && (
-          <p style={{ color: '#fca5a5', marginTop: 10 }}>
-            {error}
+    <div className="auth-container">
+      <div className="auth-card">
+        <header className="auth-header">
+          <h2>Register</h2>
+          <p>Create a new account to get started.</p>
+        </header>
+
+        <form className="auth-form" onSubmit={onSubmit} noValidate>
+          <div className="form-group">
+            <label htmlFor="name">Name</label>
+            <input
+              id="name"
+              value={form.name}
+              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              required
+              autoComplete="name"
+              className={error ? 'error' : ''}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              value={form.email}
+              onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+              required
+              autoComplete="email"
+              className={error ? 'error' : ''}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              value={form.password}
+              onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+              required
+              autoComplete="new-password"
+              className={error ? 'error' : ''}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password_confirmation">Confirm Password</label>
+            <input
+              id="password_confirmation"
+              type="password"
+              value={form.password_confirmation}
+              onChange={e =>
+                setForm(f => ({ ...f, password_confirmation: e.target.value }))
+              }
+              required
+              autoComplete="new-password"
+              className={error ? 'error' : ''}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="role">Role</label>
+            <select
+              id="role"
+              value={form.role}
+              onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
+            >
+              <option value="admin">Admin</option>
+              <option value="waiter">Waiter</option>
+              <option value="kitchen">Kitchen</option>
+            </select>
+          </div>
+
+          <button className="auth-button" disabled={loading}>
+            {loading && <span className="spinner" />}
+            {loading ? 'Registering...' : 'Register'}
+          </button>
+
+          {error && <p className="error-message">{error}</p>}
+        </form>
+
+        <footer className="auth-footer">
+          <p>
+            Already have an account?{' '}
+            <Link to="/login" className="auth-link">
+              Login here
+            </Link>
           </p>
-        )}
-      </form>
+        </footer>
+      </div>
     </div>
   )
 }
