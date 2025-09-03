@@ -13,12 +13,13 @@ import {
 } from 'react-icons/fa'
 
 export default function Sidebar({ isOpen, onClose }) {
-  const { token, user, logout, loading } = useAuth()
+  const { token, name, role, logout, loading } = useAuth()
   const [showUserBox, setShowUserBox] = useState(false)
   const dropdownRef = useRef()
 
-  const name = user?.name || 'User'
-  const role = user?.role || 'Role'
+
+  const displayName = name || 'User'
+  const displayRole = role || 'Role'
 
   useEffect(() => {
     const clickOutside = (e) => {
@@ -55,9 +56,10 @@ export default function Sidebar({ isOpen, onClose }) {
 
         <div className="sidebar-profile">
           <FaUserCircle className="profile-icon" />
-          <h3 className="profile-name">{name}</h3>
-          <p className="profile-role">{role}</p>
+          <h3 className="profile-name">{displayName}</h3>
+          <p className="profile-role">{displayRole}</p>
         </div>
+
 
         <nav className="sidebar-nav">
           {token &&
@@ -84,11 +86,12 @@ export default function Sidebar({ isOpen, onClose }) {
             {showUserBox && (
               <div ref={dropdownRef} className="user-dropdown">
                 <div className="dropdown-item">
-                  <strong>Name:</strong> {name}
+                  <strong>Name:</strong> {displayName}
                 </div>
                 <div className="dropdown-item">
-                  <strong>Role:</strong> {role}
+                  <strong>Role:</strong> {displayRole}
                 </div>
+
                 <button className="logout-btn" onClick={logout}>
                   <FaSignOutAlt /> Logout
                 </button>

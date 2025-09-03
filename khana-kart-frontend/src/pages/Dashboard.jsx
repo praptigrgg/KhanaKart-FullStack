@@ -4,20 +4,25 @@ import { useAuth } from '../context/AuthContext'
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts'
 
 export default function Dashboard() {
-  const { role } = useAuth()
+  const { role, name } = useAuth()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10)) // yyyy-mm-dd
 
+console.log('AuthContext in Dashboard:', { role, name });
+
   useEffect(() => {
     setLoading(true)
     api.get('/dashboard', { params: { date } })
-      .then(res => setData(res.data))
+      .then(res => {
+        console.log('API Dashboard data:', res.data)  // <-- Correct place for logging API response
+        setData(res.data)
+      })
       .catch(err => setError(err?.response?.data?.message || err.message))
       .finally(() => setLoading(false))
   }, [date])
-
+  
   if (loading) return <p style={{ textAlign: 'center', marginTop: 20 }}>Loading dashboard...</p>
   if (error) return <p style={{ color: 'red', textAlign: 'center', marginTop: 20 }}>{error}</p>
 
