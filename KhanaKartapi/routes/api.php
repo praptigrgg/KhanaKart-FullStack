@@ -8,6 +8,7 @@ use App\Http\Controllers\API\MenuItemController;
 use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\OrderItemController;
 use App\Http\Controllers\API\PaymentController;
+use App\Http\Controllers\API\ProfileController;
 use App\Http\Controllers\API\TableController;
 use App\Http\Controllers\API\UserController;
 
@@ -26,6 +27,18 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/users/{id}', [UserController::class, 'show']);
     Route::put('/users/{id}', [UserController::class, 'update']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'me']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::post('/profile/upload-picture', [ProfileController::class, 'uploadPicture']);
+});
+
+// Admin - manage any user's profile
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::get('/profiles/{id}', [ProfileController::class, 'show']);
+    Route::put('/profiles/{id}', [ProfileController::class, 'updateUser']);
 });
 
 // Authenticated routes (require Sanctum token)

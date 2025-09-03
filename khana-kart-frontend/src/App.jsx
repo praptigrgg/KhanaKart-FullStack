@@ -5,8 +5,9 @@ import MenuItems from './pages/MenuItems';
 import Orders from './pages/Orders';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Users from './pages/Users'
-
+import Users from './pages/Users';
+import ProfilePage from './pages/ProfilePage';
+import AdminProfileManager from "./pages/AdminProfileManager";
 
 import PrivateRoute from './components/PrivateRoute';
 import { Routes, Route } from 'react-router-dom';
@@ -43,13 +44,24 @@ export default function App() {
         {shouldShowSidebar ? (
           <main className={`main-content ${sidebarOpen ? 'sidebar-open' : ''}`}>
             <Routes>
-
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
               <Route path="/menu-items" element={<PrivateRoute><MenuItems /></PrivateRoute>} />
               <Route path="/orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
-              <Route path="/users" element={<Users />} />
+              <Route path="/users" element={<PrivateRoute><Users /></PrivateRoute>} />
+              <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+              <Route path="/profiles/:id" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+              <Route path="/profiles" element={<ProfilePage />} />
+              
+              {/* Only Admin can access this route */}
+             <Route
+  path="/admin/profiles"
+  element={
+    <PrivateRoute requiredRole="admin">
+      <AdminProfileManager />
+    </PrivateRoute>
+  }
+/>
 
-              <Route path="*" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
             </Routes>
           </main>
         ) : (
