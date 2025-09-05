@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { 
+import {
   FaPlus, FaCreditCard, FaTrash, FaCheck, FaSort, FaSortUp, FaSortDown,
-  FaChevronLeft, FaChevronRight 
+  FaChevronLeft, FaChevronRight
 } from "react-icons/fa";
 
 export default function OrdersTable({
@@ -61,7 +61,7 @@ export default function OrdersTable({
   const filteredOrders = sortedOrders.filter(order => {
     if (!order) return false;
 
-    const matchesSearch = 
+    const matchesSearch =
       (order.id && order.id.toString().includes(searchTerm)) ||
       (order.table_id && order.table_id.toString().includes(searchTerm)) ||
       (order.items && order.items.some(item => {
@@ -90,10 +90,10 @@ export default function OrdersTable({
       {/* Date filter controls */}
       <div style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "1rem" }}>
         <label>
-          <input 
-            type="checkbox" 
-            checked={showTodayOnly} 
-            onChange={() => setShowTodayOnly(!showTodayOnly)} 
+          <input
+            type="checkbox"
+            checked={showTodayOnly}
+            onChange={() => setShowTodayOnly(!showTodayOnly)}
           />{" "}
           Show Today's Orders Only
         </label>
@@ -102,19 +102,19 @@ export default function OrdersTable({
           <>
             <label>
               Start Date:{" "}
-              <input 
-                type="date" 
-                value={startDate} 
-                onChange={e => setStartDate(e.target.value)} 
+              <input
+                type="date"
+                value={startDate}
+                onChange={e => setStartDate(e.target.value)}
                 max={todayStr}
               />
             </label>
             <label>
               End Date:{" "}
-              <input 
-                type="date" 
-                value={endDate} 
-                onChange={e => setEndDate(e.target.value)} 
+              <input
+                type="date"
+                value={endDate}
+                onChange={e => setEndDate(e.target.value)}
                 max={todayStr}
                 min={startDate || undefined}
               />
@@ -150,7 +150,7 @@ export default function OrdersTable({
                   Date <SortIcon columnKey="created_at" />
                 </div>
               </th>
-              <th>Actions</th>
+             {role !== "admin" && <th>Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -161,7 +161,7 @@ export default function OrdersTable({
                   <h3>No orders found</h3>
                   <p>{searchTerm || statusFilter !== "all" ? "Try adjusting your search or filters" : "Start by creating your first order"}</p>
                   {canCreate && (
-                    <button 
+                    <button
                       className="btn btn-primary mt-2"
                       onClick={() => setShowCreateOrder(true)}
                     >
@@ -173,7 +173,7 @@ export default function OrdersTable({
             ) : (
               currentOrders.map((order) => {
                 if (!order) return null;
-                
+
                 const table = tables.find((t) => t.id === order.table_id);
                 const { total, totalAfterDiscount } = calculateOrderTotal(order);
                 const orderDate = order.created_at ? new Date(order.created_at).toLocaleDateString() : 'N/A';
@@ -225,7 +225,7 @@ export default function OrdersTable({
                       <span className="discount">{order.discount || 0}%</span>
                     </td>
                     <td data-label="Status">
-                      <span 
+                      <span
                         className="status-badge"
                         style={{ backgroundColor: getStatusColor(order.status) }}
                       >
@@ -236,15 +236,15 @@ export default function OrdersTable({
                     <td data-label="Date">
                       <span className="order-date">{orderDate}</span>
                     </td>
-                    <td data-label="Actions">
-                      <div className="order-actions">
-                        {order.is_paid ? (
-                          <span className="paid-badge">
-                            <FaCheck /> Paid
-                          </span>
-                        ) : (
-                          <>
-                            {role === 'waiter' && (
+                    {role !== "admin" && (
+                      <td data-label="Actions">
+                        <div className="order-actions">
+                          {order.is_paid ? (
+                            <span className="paid-badge">
+                              <FaCheck /> Paid
+                            </span>
+                          ) : (
+                            role === 'waiter' && (
                               <>
                                 <button
                                   className="btn btn-success btn-sm"
@@ -271,19 +271,20 @@ export default function OrdersTable({
                                   <FaTrash />
                                 </button>
                               </>
-                            )}
-                          </>
-                        )}
+                            )
+                          )}
+                        </div>
+
                         {role === "kitchen" && order.status !== "served" && (
                           <div className="kitchen-actions">
-                            <button 
+                            <button
                               className="btn btn-warning btn-sm"
                               onClick={() => updateStatus(order.id, "pending")}
                               title="Mark as Pending"
                             >
                               Pending
                             </button>
-                            <button 
+                            <button
                               className="btn btn-success btn-sm"
                               onClick={() => updateStatus(order.id, "served")}
                               title="Mark as Served"
@@ -292,8 +293,9 @@ export default function OrdersTable({
                             </button>
                           </div>
                         )}
-                      </div>
-                    </td>
+                      </td>
+                    )}
+
                   </tr>
                 );
               })
@@ -309,8 +311,8 @@ export default function OrdersTable({
             <span>
               Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredOrders.length)} of {filteredOrders.length} orders
             </span>
-            <select 
-              value={itemsPerPage} 
+            <select
+              value={itemsPerPage}
               onChange={handleItemsPerPageChange}
               className="items-per-page-select"
             >
@@ -320,7 +322,7 @@ export default function OrdersTable({
               <option value="50">50 per page</option>
             </select>
           </div>
-          
+
           <div className="pagination-buttons">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
@@ -329,11 +331,11 @@ export default function OrdersTable({
             >
               <FaChevronLeft />
             </button>
-            
+
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              const page = currentPage <= 3 ? i + 1 : 
-                          currentPage >= totalPages - 2 ? totalPages - 4 + i :
-                          currentPage - 2 + i;
+              const page = currentPage <= 3 ? i + 1 :
+                currentPage >= totalPages - 2 ? totalPages - 4 + i :
+                  currentPage - 2 + i;
               return page <= totalPages && page > 0 ? (
                 <button
                   key={page}
@@ -344,11 +346,11 @@ export default function OrdersTable({
                 </button>
               ) : null;
             })}
-            
+
             {totalPages > 5 && currentPage < totalPages - 2 && (
               <span className="pagination-ellipsis">...</span>
             )}
-            
+
             {totalPages > 5 && currentPage < totalPages - 1 && (
               <button
                 onClick={() => handlePageChange(totalPages)}
@@ -357,7 +359,7 @@ export default function OrdersTable({
                 {totalPages}
               </button>
             )}
-            
+
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
@@ -367,6 +369,7 @@ export default function OrdersTable({
             </button>
           </div>
         </div>
+
       )}
     </>
   );

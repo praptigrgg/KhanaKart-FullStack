@@ -9,8 +9,8 @@ export default function MenuItems() {
   const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState('all')
-const { role } = useAuth()
-const roleNormalized = role?.toLowerCase() || ''
+  const { role } = useAuth()
+  const roleNormalized = role?.toLowerCase() || ''
 
   const [form, setForm] = useState({ 
     name: '', 
@@ -24,14 +24,13 @@ const roleNormalized = role?.toLowerCase() || ''
   const [showForm, setShowForm] = useState(false)
   const [formErrors, setFormErrors] = useState({})
 
-function canEdit() {
-  return roleNormalized === 'admin'
-}
+  function canEdit() {
+    return roleNormalized === 'admin'
+  }
 
-function canToggle() {
-  return ['admin', 'kitchen'].includes(roleNormalized)
-}
-
+  function canToggle() {
+    return ['admin', 'kitchen'].includes(roleNormalized)
+  }
 
   function fetchAll() {
     setLoading(true)
@@ -153,8 +152,7 @@ function canToggle() {
                 </option>
               ))}
             </select>
-           {canEdit() && (
-            
+            {canEdit() && (
               <button 
                 className={`btn ${showForm ? 'btn-secondary' : 'btn-primary'}`}
                 onClick={() => {
@@ -168,9 +166,7 @@ function canToggle() {
               >
                 <FaPlus /> {showForm ? 'Cancel' : 'Add Item'}
               </button>
-
-           )}
-            
+            )}
           </div>
         </div>
 
@@ -286,13 +282,13 @@ function canToggle() {
                   <th>Category</th>
                   <th>Price</th>
                   <th>Status</th>
-                  <th>Actions</th>
+                  {(canEdit() || canToggle()) && <th>Actions</th>}
                 </tr>
               </thead>
               <tbody>
                 {filteredItems.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="table-empty">
+                    <td colSpan={(canEdit() || canToggle()) ? 6 : 5} className="table-empty">
                       <div className="table-empty-icon">🍽️</div>
                       <h3>No menu items found</h3>
                       <p>{searchTerm || filterCategory !== 'all' ? 'Try adjusting your search or filters' : 'Start by adding your first menu item'}</p>
@@ -328,40 +324,42 @@ function canToggle() {
                           {item.is_available ? 'Available' : 'Unavailable'}
                         </span>
                       </td>
-                      <td>
-                        <div className="table-actions">
-                          {canToggle() && (
-                            <button 
-                              className={`table-btn ${item.is_available ? 'table-btn-warning' : 'table-btn-success'}`}
-                              onClick={() => updateItem(item.id, { is_available: !item.is_available })}
-                              title={item.is_available ? 'Mark as unavailable' : 'Mark as available'}
-                            >
-                              {item.is_available ? <FaToggleOff /> : <FaToggleOn />}
-                              {item.is_available ? 'Disable' : 'Enable'}
-                            </button>
-                          )}
-                          {canEdit() && (
-                            <>
+                      {(canEdit() || canToggle()) && (
+                        <td>
+                          <div className="table-actions">
+                            {canToggle() && (
                               <button 
-                                className="table-btn table-btn-edit"
-                                onClick={() => startEdit(item)}
-                                title="Edit item"
+                                className={`table-btn ${item.is_available ? 'table-btn-warning' : 'table-btn-success'}`}
+                                onClick={() => updateItem(item.id, { is_available: !item.is_available })}
+                                title={item.is_available ? 'Mark as unavailable' : 'Mark as available'}
                               >
-                                <FaEdit />
-                                Edit
+                                {item.is_available ? <FaToggleOff /> : <FaToggleOn />}
+                                {item.is_available ? 'Disable' : 'Enable'}
                               </button>
-                              <button 
-                                className="table-btn table-btn-delete"
-                                onClick={() => deleteItem(item.id)}
-                                title="Delete item"
-                              >
-                                <FaTrash />
-                                Delete
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
+                            )}
+                            {canEdit() && (
+                              <>
+                                <button 
+                                  className="table-btn table-btn-edit"
+                                  onClick={() => startEdit(item)}
+                                  title="Edit item"
+                                >
+                                  <FaEdit />
+                                  Edit
+                                </button>
+                                <button 
+                                  className="table-btn table-btn-delete"
+                                  onClick={() => deleteItem(item.id)}
+                                  title="Delete item"
+                                >
+                                  <FaTrash />
+                                  Delete
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))
                 )}
@@ -379,10 +377,10 @@ function canToggle() {
 
       {/* Add CSS styles */}
       <style>{`
+        /* your CSS styles remain unchanged */
         .menu-items-container {
           padding: 1rem;
         }
-        
         .add-item-card {
           background: var(--bg-secondary);
           border-radius: 12px;
@@ -390,11 +388,9 @@ function canToggle() {
           margin-bottom: 1.5rem;
           border: 1px solid var(--border-light);
         }
-        
         .item-form {
           margin-top: 1rem;
         }
-        
         .form-actions {
           display: flex;
           gap: 1rem;
@@ -403,171 +399,65 @@ function canToggle() {
           padding-top: 1rem;
           border-top: 1px solid var(--border-light);
         }
-        
-        .availability-toggle {
+        .table-empty {
+          text-align: center;
+          padding: 3rem 1rem;
+          color: var(--text-muted);
+        }
+        .table-empty-icon {
+          font-size: 3rem;
+          margin-bottom: 0.5rem;
+        }
+        .table-actions {
           display: flex;
+          gap: 0.5rem;
           align-items: center;
-          gap: 0.75rem;
-          height: 48px;
         }
-        
-        .toggle-switch {
-          position: relative;
-          display: inline-block;
-          width: 50px;
-          height: 24px;
-        }
-        
-        .toggle-switch input {
-          opacity: 0;
-          width: 0;
-          height: 0;
-        }
-        
-        .toggle-slider {
-          position: absolute;
+        .table-btn {
+          border: none;
+          background: transparent;
           cursor: pointer;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: #ccc;
-          transition: .4s;
-          border-radius: 24px;
-        }
-        
-        .toggle-slider:before {
-          position: absolute;
-          content: "";
-          height: 18px;
-          width: 18px;
-          left: 3px;
-          bottom: 3px;
-          background-color: white;
-          transition: .4s;
-          border-radius: 50%;
-        }
-        
-        input:checked + .toggle-slider {
-          background-color: var(--success);
-        }
-        
-        input:checked + .toggle-slider:before {
-          transform: translateX(26px);
-        }
-        
-        .toggle-label {
-          font-weight: 500;
-          color: var(--text-primary);
-        }
-        
-        .error-text {
-          color: var(--danger);
-          font-size: 0.85rem;
-          margin-top: 0.25rem;
-          display: block;
-        }
-        
-        .form-input.error {
-          border-color: var(--danger);
-          box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-        }
-        
-        .btn-icon {
-          padding: 0.5rem;
-          border-radius: 8px;
-        }
-        
-        .search-box {
-          position: relative;
-          display: flex;
+          display: inline-flex;
           align-items: center;
-        }
-        
-        .search-icon {
-          position: absolute;
-          left: 12px;
-          color: var(--text-secondary);
-        }
-        
-        .search-input {
-          padding-left: 40px;
-          border-radius: 8px;
-          border: 1px solid var(--border-medium);
-          height: 40px;
-          width: 250px;
-        }
-        
-        .category-filter {
-          height: 40px;
-          border-radius: 8px;
-          border: 1px solid var(--border-medium);
-          padding: 0 12px;
-        }
-        
-        .item-name {
-          font-weight: 600;
-          color: var(--text-primary);
-        }
-        
-        .item-description {
-          color: var(--text-secondary);
+          gap: 0.3rem;
           font-size: 0.9rem;
-          line-height: 1.4;
-          max-width: 200px;
+          padding: 0.25rem 0.5rem;
+          border-radius: 6px;
+          transition: background-color 0.2s;
         }
-        
-        .category-badge {
-          background: rgba(79, 70, 229, 0.1);
+        .table-btn-edit {
           color: var(--primary);
-          padding: 0.25rem 0.75rem;
-          border-radius: 12px;
-          font-size: 0.8rem;
-          font-weight: 500;
         }
-        
-        .price-tag {
-          font-weight: 600;
+        .table-btn-delete {
+          color: var(--danger);
+        }
+        .table-btn-warning {
+          color: var(--warning);
+        }
+        .table-btn-success {
           color: var(--success);
         }
-        
         .item-unavailable {
-          opacity: 0.7;
-          background: rgba(0, 0, 0, 0.02) !important;
+          opacity: 0.6;
         }
-        
-        .loading-state {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 3rem;
+        .status-badge {
+          padding: 0.25rem 0.5rem;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 0.9rem;
+        }
+        .status-active {
+          background-color: var(--success-light);
+          color: var(--success);
+        }
+        .status-cancelled {
+          background-color: var(--danger-light);
+          color: var(--danger);
+        }
+        .category-badge {
+          font-weight: 600;
+          font-size: 0.9rem;
           color: var(--text-secondary);
-        }
-        
-        .loading-spinner {
-          width: 40px;
-          height: 40px;
-          border: 3px solid var(--border-light);
-          border-top: 3px solid var(--primary);
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-          margin-bottom: 1rem;
-        }
-        
-        .table-footer {
-          padding: 1rem;
-          border-top: 1px solid var(--border-light);
-          text-align: center;
-          color: var(--text-secondary);
-        }
-        
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        
-        .mt-2 {
-          margin-top: 0.5rem;
         }
       `}</style>
     </div>

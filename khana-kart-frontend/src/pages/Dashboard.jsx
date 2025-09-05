@@ -34,13 +34,13 @@ console.log('AuthContext in Dashboard:', { role, name });
 
   return (
     <div style={{ maxWidth: 900, margin: 'auto', padding: 20, fontFamily: 'Arial, sans-serif' }}>
-      <h1 style={{ borderBottom: '2px solid #ccc', paddingBottom: 10, textTransform: 'capitalize', marginBottom: 20 }}>
+      <h1 style={{color:'#4a3060', borderBottom: '1px solid #6b577bff', paddingBottom: 10, textTransform: 'capitalize', marginBottom: 20 }}>
         Dashboard ({role})
       </h1>
 
       {role === 'admin' && (
         <div style={{ marginBottom: 20 }}>
-          <label htmlFor="date-picker" style={{ fontWeight: 'bold', marginRight: 10 }}>
+          <label htmlFor="date-picker" style={{ color:'#4a3060',fontWeight: 'bold', marginRight: 10 }}>
             Select Date:
           </label>
           <input
@@ -49,7 +49,7 @@ console.log('AuthContext in Dashboard:', { role, name });
             value={date}
             max={new Date().toISOString().slice(0, 10)}
             onChange={e => setDate(e.target.value)}
-            style={{ padding: 6, borderRadius: 4, border: '1px solid #000000ff' }}
+            style={{ padding: 6, borderRadius: 4, border: '1px solid #4a3060' }}
           />
         </div>
       )}
@@ -88,7 +88,7 @@ console.log('AuthContext in Dashboard:', { role, name });
                     key={label}
                     style={{
                       flex: '1 1 250px',
-                      backgroundColor: '#000000ff',
+                      backgroundColor: '#4a3060',
                       color: '#ffffff',
                       padding: 20,
                       borderRadius: 8,
@@ -195,7 +195,8 @@ const tableHeaderStyle = {
   borderBottom: '2px solid #ccc',
   textAlign: 'left',
   padding: '8px 12px',
-  backgroundColor: '#000000ff',
+  backgroundColor: '#4a3060',
+  color:'#ffffffff',
 }
 
 const tableCellStyle = {
@@ -203,7 +204,8 @@ const tableCellStyle = {
 }
 
 const cardStyle = {
-  backgroundColor: '#0c0c0cff',
+  backgroundColor: '#4a3060',
+  color:'#ffff',
   padding: 20,
   borderRadius: 8,
   boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
@@ -216,7 +218,7 @@ const statValueStyle = {
   fontSize: 36,
   fontWeight: 'bold',
   margin: '10px 0 20px',
-  color: '#333',
+  color: '#ffffffff',
 }
 
 const listStyle = {

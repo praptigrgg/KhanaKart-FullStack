@@ -1,5 +1,6 @@
 import { FaPlus, FaSearch } from "react-icons/fa";
 
+import './OrdersHeader.css'
 export default function OrdersHeader({
   searchTerm,
   setSearchTerm,

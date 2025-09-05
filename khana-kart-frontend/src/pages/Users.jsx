@@ -9,18 +9,18 @@ const styles = {
     margin: "2rem auto",
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
     color: "#333",
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#f6ebffff",
     padding: "2rem",
     borderRadius: 8,
     boxShadow: "0 0 12px rgba(0,0,0,0.1)",
   },
   heading: {
-    color: "#2c3e50",
+    color: "#4a3060",
     marginBottom: "1.5rem",
     textAlign: "center",
   },
   form: {
-    backgroundColor: "white",
+    backgroundColor: "#f6ebffff",
     padding: "1.5rem",
     borderRadius: 6,
     marginBottom: "2rem",
@@ -39,14 +39,14 @@ const styles = {
     outline: "none",
   },
   inputFocus: {
-    borderColor: "#2980b9",
+    borderColor: "#4a3060",
     boxShadow: "0 0 6px rgba(41,128,185,0.3)",
   },
   label: {
     display: "block",
     fontWeight: 600,
     marginBottom: 4,
-    color: "#34495e",
+    color: "#4a3060",
   },
   select: {
     width: "100%",
@@ -64,12 +64,12 @@ const styles = {
     fontWeight: 600,
     fontSize: 16,
     border: "none",
-    backgroundColor: "#2980b9",
+    backgroundColor: "#4a3060",
     color: "white",
     transition: "background-color 0.25s ease",
   },
   buttonPrimaryHover: {
-    backgroundColor: "#1f6391",
+    backgroundColor: "#4a3060",
   },
   buttonCancel: {
     cursor: "pointer",
@@ -99,7 +99,7 @@ const styles = {
     padding: "0.8rem 1rem",
     textAlign: "left",
     borderBottom: "1px solid #ddd",
-    backgroundColor: "#2980b9",
+    backgroundColor: "#4a3060",
     color: "white",
     fontWeight: 600,
   },
@@ -113,7 +113,7 @@ const styles = {
   btnIcon: {
     background: "transparent",
     border: "none",
-    color: "#2980b9",
+    color: "#4a3060",
     fontSize: 18,
     marginRight: 8,
     padding: "0.2rem 0.4rem",
@@ -125,10 +125,10 @@ const styles = {
     color: "#e74c3c",
   },
   btnIconHover: {
-    backgroundColor: "#d6e6f7",
+    backgroundColor: "#c9c0ceff",
   },
   btnIconDangerHover: {
-    backgroundColor: "#f8d7da",
+    backgroundColor: "#fea6a6ff",
   },
   errorMessage: {
     color: "#b00020",
@@ -154,7 +154,7 @@ const SpinStyle = () => (
 );
 
 export default function Users() {
-const { role } = useAuth();
+  const { role } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -366,63 +366,70 @@ const { role } = useAuth();
       {/* Error */}
       {error && <div style={styles.errorMessage}>{error}</div>}
 
-      {/* Users Table */}
-      {loading ? (
-        <p style={{ textAlign: "center" }}>
-          <FaSpinner style={styles.spinner} /> Loading users...
-        </p>
-      ) : (
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.th}>Name</th>
-              <th style={styles.th}>Email</th>
-              <th style={styles.th}>Role</th>
-              <th style={styles.th}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.length === 0 && (
+      <div style={styles.container}>
+        <SpinStyle />
+        <h1 style={styles.heading}>Users List</h1>
+        {/* Users Table */}
+        {loading ? (
+          <p style={{ textAlign: "center" }}>
+            <FaSpinner style={styles.spinner} /> Loading users...
+          </p>
+        ) : (
+
+          <table style={styles.table}>
+            <thead>
               <tr>
-                <td colSpan={4} style={{ ...styles.td, textAlign: "center" }}>
-                  No users found.
-                </td>
+                <th style={styles.th}>Name</th>
+                <th style={styles.th}>Email</th>
+                <th style={styles.th}>Role</th>
+                <th style={styles.th}>Actions</th>
               </tr>
-            )}
-            {users.map((u) => (
-              <tr
-                key={u.id}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.trHover.backgroundColor)}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "white")}
-              >
-                <td style={styles.td}>{u.name}</td>
-                <td style={styles.td}>{u.email}</td>
-                <td style={styles.td}>{u.role}</td>
-                <td style={styles.td}>
-                  <button
-                    style={styles.btnIcon}
-                    title="Edit"
-                    onClick={() => handleEdit(u)}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.btnIconHover.backgroundColor)}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    style={{ ...styles.btnIcon, ...styles.btnIconDanger }}
-                    title="Delete"
-                    onClick={() => handleDelete(u.id)}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.btnIconDangerHover.backgroundColor)}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {users.length === 0 && (
+                <tr>
+                  <td colSpan={4} style={{ ...styles.td, textAlign: "center" }}>
+                    No users found.
+                  </td>
+                </tr>
+              )}
+              {users.map((u) => (
+                <tr
+                  key={u.id}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.trHover.backgroundColor)}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "white")}
+                >
+                  <td style={styles.td}>{u.name}</td>
+                  <td style={styles.td}>{u.email}</td>
+                  <td style={styles.td}>{u.role}</td>
+                  <td style={styles.td}>
+                    <button
+                      style={styles.btnIcon}
+                      title="Edit"
+                      onClick={() => handleEdit(u)}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.btnIconHover.backgroundColor)}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      style={{ ...styles.btnIcon, ...styles.btnIconDanger }}
+                      title="Delete"
+                      onClick={() => handleDelete(u.id)}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.btnIconDangerHover.backgroundColor)}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+        )}
+      </div>
+
     </div>
   );
 }
