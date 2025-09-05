@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
+import './Sidebar.css'
 import {
   FaHome,
   FaFileAlt,
@@ -40,11 +41,14 @@ export default function Sidebar({ isOpen, onClose }) {
     // All users can see tables link
     { to: '/tables', label: 'Tables', icon: <FaFileAlt /> },
   ]
+navItems.push({ to: '/kot', label: 'KOT', icon: <FaFileAlt /> })
 
   // Role specific items
   if (role === 'admin') {
     navItems.push({ to: '/profiles', label: 'User Profiles', icon: <FaUserCircle /> })
     navItems.push({ to: '/users', label: 'Users', icon: <FaUsers /> })
+      navItems.push({ to: '/roles', label: 'Roles', icon: <FaFileAlt /> });
+
   } else {
     navItems.push({ to: '/profile', label: 'My Profile', icon: <FaUserCircle /> })
   }
@@ -53,10 +57,7 @@ export default function Sidebar({ isOpen, onClose }) {
     <>
       <div className={`sidebar-overlay ${isOpen ? 'active' : ''}`} onClick={onClose}></div>
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-        <button className="sidebar-close" onClick={onClose}>
-          <FaTimes />
-        </button>
-
+       
         <div className="sidebar-profile">
           <FaUserCircle className="profile-icon" />
           <h3 className="profile-name">{displayName}</h3>

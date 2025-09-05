@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
+
 import Dashboard from './pages/Dashboard';
 import MenuItems from './pages/MenuItems';
 import Orders from './pages/Orders';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import TablesPage from './pages/TablesPage';
 import Users from './pages/Users';
 import ProfilePage from './pages/ProfilePage';
-import AdminProfileManager from "./pages/AdminProfileManager";
+import AdminProfileManager from './pages/AdminProfileManager';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import KOT from './pages/KOT';
+import RolesPage from './pages/RolesPage'; // <-- Import RolesPage
 
 import PrivateRoute from './components/PrivateRoute';
-import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { useLocation } from 'react-router-dom';
-import TablesPage from './pages/TablesPage';
+import { InvoiceProvider } from './context/InvoiceContext';
+
 import './styles.css';
 
 export default function App() {
@@ -25,53 +29,59 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <div className="app-container">
-        {shouldShowSidebar && (
-          <>
-            <button
-              className="hamburger-menu"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-            >
-              <span></span>
-              <span></span>
-              <span></span>
-            </button>
+      <InvoiceProvider>
+        <div className="app-container">
+          {shouldShowSidebar && (
+            <>
+              <button
+                className="hamburger-menu"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+              >
+                <span></span>
+                <span></span>
+                <span></span>
+              </button>
 
-            <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-          </>
-        )}
+              <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+            </>
+          )}
 
-        {shouldShowSidebar ? (
-          <main className={`main-content ${sidebarOpen ? 'sidebar-open' : ''}`}>
+          {shouldShowSidebar ? (
+            <main className={`main-content ${sidebarOpen ? 'sidebar-open' : ''}`}>
+              <Routes>
+                <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+                <Route path="/menu-items" element={<PrivateRoute><MenuItems /></PrivateRoute>} />
+                <Route path="/orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
+                <Route path="/tables" element={<PrivateRoute><TablesPage /></PrivateRoute>} />
+                <Route path="/users" element={<PrivateRoute><Users /></PrivateRoute>} />
+
+                {/* Roles page route, admin only */}
+                <Route path="/roles" element={<PrivateRoute requiredRole="admin"><RolesPage /></PrivateRoute>} />
+
+                <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+                <Route path="/profiles/:id" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+                <Route path="/profiles" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+
+                <Route path="/kot" element={<PrivateRoute><KOT /></PrivateRoute>} />
+
+                <Route
+                  path="/admin/profiles"
+                  element={
+                    <PrivateRoute requiredRole="admin">
+                      <AdminProfileManager />
+                    </PrivateRoute>
+                  }
+                />
+              </Routes>
+            </main>
+          ) : (
             <Routes>
-              <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-              <Route path="/menu-items" element={<PrivateRoute><MenuItems /></PrivateRoute>} />
-              <Route path="/orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
-              <Route path="/users" element={<PrivateRoute><Users /></PrivateRoute>} />
-              <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-              <Route path="/profiles/:id" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-              <Route path="/profiles" element={<ProfilePage />} />
-              <Route path="/tables" element={<TablesPage />} />
-
-              {/* Only Admin can access this route */}
-             <Route
-  path="/admin/profiles"
-  element={
-    <PrivateRoute requiredRole="admin">
-      <AdminProfileManager />
-    </PrivateRoute>
-  }
-/>
-
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
             </Routes>
-          </main>
-        ) : (
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-          </Routes>
-        )}
-      </div>
+          )}
+        </div>
+      </InvoiceProvider>
     </AuthProvider>
   );
 }
