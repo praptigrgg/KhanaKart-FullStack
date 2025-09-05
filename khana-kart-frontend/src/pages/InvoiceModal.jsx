@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { FaPrint, FaDownload } from "react-icons/fa";
 import html2pdf from "html2pdf.js";
+import { useInvoice } from '../context/InvoiceContext'
 
 const invoiceStyles = `
   body {
@@ -49,14 +50,14 @@ const invoiceStyles = `
   .invoice-header {
     text-align: center;
     margin-bottom: 30px;
-    border-bottom: 2px solid #007bff;
+    border-bottom: 2px solid #4a3060;
     padding-bottom: 10px;
   }
 
   .invoice-header h2 {
     margin: 0;
     font-size: 32px;
-    color: #007bff;
+    color: #6b5c78ff;
   }
 
   .invoice-header p {
@@ -103,8 +104,8 @@ const invoiceStyles = `
     font-size: 18px;
     margin-top: 12px;
     padding-top: 12px;
-    border-top: 2px solid #007bff;
-    color: #007bff;
+    border-top: 2px solid #564170ff;
+    color: #6451a1ff;
   }
 
   .thank-you {
@@ -179,11 +180,16 @@ function generateInvoiceHTML(order, includeStyles = true) {
 
 export default function InvoiceModal({ showInvoice, setShowInvoice, invoiceOrder, setInvoiceOrder }) {
   const invoiceRef = useRef();
+const { addInvoice } = useInvoice()
 
-  const closeInvoice = () => {
-    setShowInvoice(false);
-    setInvoiceOrder(null);
-  };
+const closeInvoice = () => {
+  if (invoiceOrder) {
+    addInvoice(invoiceOrder) // Save before closing
+  }
+  setShowInvoice(false)
+  setInvoiceOrder(null)
+}
+
 
   const printInvoice = () => {
     if (!invoiceOrder) return;

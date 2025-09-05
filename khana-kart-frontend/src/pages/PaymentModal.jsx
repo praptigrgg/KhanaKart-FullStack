@@ -217,7 +217,7 @@ export default function PaymentModal({
               <span>Discount ({discountPercent}%):</span>
               <span>- Rs. {discountAmount.toFixed(2)}</span>
             </div>
-            <div className="summary-row total" style={{ display: "flex", justifyContent: "space-between", fontWeight: "bold", fontSize: "18px", marginTop: "12px", borderTop: "2px solid #007bff", paddingTop: "12px", color: "#007bff" }}>
+            <div className="summary-row total" style={{ display: "flex", justifyContent: "space-between", fontWeight: "bold", fontSize: "18px", marginTop: "12px", borderTop: "2px solid #8e7ba9ff", paddingTop: "12px", color: "#000000ff" }}>
               <span>Total:</span>
               <span>
                 Rs.{" "}

@@ -9,6 +9,7 @@ use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\OrderItemController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\ProfileController;
+use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\TableController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -57,12 +58,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/menu-items/{id}', [MenuItemController::class, 'update']);
         Route::delete('/menu-items/{id}', [MenuItemController::class, 'destroy']);
 
+    Route::apiResource('roles', RoleController::class);
+
 
         Route::get('/tables', [TableController::class, 'index']);
         Route::post('/tables/bulk-create', [TableController::class, 'bulkCreate']);
         Route::put('/tables/{id}', [TableController::class, 'update']);
         Route::delete('/tables/{id}', [TableController::class, 'destroy']);
     });
+
+
     // Waiter-only routes
     Route::middleware(['role:waiter'])->group(function () {
         Route::post('/orders', [OrderController::class, 'store']);

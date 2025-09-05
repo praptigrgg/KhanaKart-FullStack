@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\MenuItem;
 use App\Models\Order;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -12,13 +13,15 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+   public function register(Request $request)
 {
+    $validRoles = Role::pluck('name')->toArray();
+
     $request->validate([
         'name' => 'required',
         'email' => 'required|email|unique:users',
         'password' => 'required|min:6|confirmed',
-        'role' => 'required|in:admin,waiter,kitchen',
+        'role' => 'required|string|in:' . implode(',', $validRoles),
     ], [
         'password.confirmed' => 'Passwords do not match.',
     ]);
