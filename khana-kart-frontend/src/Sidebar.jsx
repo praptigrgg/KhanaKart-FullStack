@@ -17,7 +17,6 @@ export default function Sidebar({ isOpen, onClose }) {
   const [showUserBox, setShowUserBox] = useState(false)
   const dropdownRef = useRef()
 
-
   const displayName = name || 'User'
   const displayRole = role || 'Role'
 
@@ -33,12 +32,16 @@ export default function Sidebar({ isOpen, onClose }) {
 
   if (loading) return null
 
+  // Base nav items everyone sees
   const navItems = [
     { to: '/dashboard', label: 'Dashboard', icon: <FaHome /> },
     { to: '/menu-items', label: 'Menu Items', icon: <FaFileAlt /> },
     { to: '/orders', label: 'Orders', icon: <FaChartBar /> },
+    // All users can see tables link
+    { to: '/tables', label: 'Tables', icon: <FaFileAlt /> },
   ]
 
+  // Role specific items
   if (role === 'admin') {
     navItems.push({ to: '/profiles', label: 'User Profiles', icon: <FaUserCircle /> })
     navItems.push({ to: '/users', label: 'Users', icon: <FaUsers /> })
@@ -59,7 +62,6 @@ export default function Sidebar({ isOpen, onClose }) {
           <h3 className="profile-name">{displayName}</h3>
           <p className="profile-role">{displayRole}</p>
         </div>
-
 
         <nav className="sidebar-nav">
           {token &&

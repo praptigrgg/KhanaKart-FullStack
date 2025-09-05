@@ -11,7 +11,6 @@ use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\ProfileController;
 use App\Http\Controllers\API\TableController;
 use App\Http\Controllers\API\UserController;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -44,7 +43,6 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 // Authenticated routes (require Sanctum token)
 Route::middleware(['auth:sanctum'])->group(function () {
 
-    Route::middleware('auth:sanctum')->get('/tables', [TableController::class, 'index']);
     // Common authenticated routes (all roles)
     Route::get('/menu-items', [MenuItemController::class, 'index']);
     Route::get('/menu-items/{id}', [MenuItemController::class, 'show']);
@@ -58,6 +56,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/menu-items', [MenuItemController::class, 'store']);
         Route::put('/menu-items/{id}', [MenuItemController::class, 'update']);
         Route::delete('/menu-items/{id}', [MenuItemController::class, 'destroy']);
+
+
+        Route::get('/tables', [TableController::class, 'index']);
+        Route::post('/tables/bulk-create', [TableController::class, 'bulkCreate']);
+        Route::put('/tables/{id}', [TableController::class, 'update']);
+        Route::delete('/tables/{id}', [TableController::class, 'destroy']);
     });
     // Waiter-only routes
     Route::middleware(['role:waiter'])->group(function () {

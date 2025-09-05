@@ -55,6 +55,7 @@ export default function CreateOrderModal({
         </div>
 
         <form onSubmit={(e) => handleSubmit(e, "create")} className="order-form" style={{ marginTop: "20px" }}>
+          {/* Table + Discount Row */}
           <div className="form-row" style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
             <div className="form-group" style={{ flex: "1 1 200px" }}>
               <label className="form-label">Select Table *</label>
@@ -91,19 +92,21 @@ export default function CreateOrderModal({
             </div>
           </div>
 
+          {/* Menu Items */}
           <div className="form-group" style={{ marginTop: "20px" }}>
             <label className="form-label">Add Menu Items</label>
             <div
               className="menu-items-grid"
               style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "10px",
-                maxHeight: "200px",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+                gap: "12px",
+                maxHeight: "250px",
                 overflowY: "auto",
                 border: "1px solid #ddd",
-                padding: "10px",
+                padding: "12px",
                 borderRadius: "6px",
+                backgroundColor: "#f9f9f9",
               }}
             >
               {menu
@@ -113,25 +116,26 @@ export default function CreateOrderModal({
                     type="button"
                     key={m.id}
                     className="menu-item-btn"
-                    onClick={() => {
-                      addItemToForm(m.id, "create");
-                    }}
+                    onClick={() => addItemToForm(m.id, "create")}
                     style={{
-                      flex: "1 1 120px",
                       padding: "10px",
                       border: "1px solid #007bff",
-                      borderRadius: "4px",
-                      backgroundColor: "#f8f9fa",
+                      borderRadius: "6px",
+                      backgroundColor: "#ffffff",
                       cursor: "pointer",
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
+                      transition: "background-color 0.2s ease",
+                      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
                     }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#e6f0ff")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
                   >
-                    <span className="item-name" style={{ fontWeight: "bold" }}>
+                    <span className="item-name" style={{ fontWeight: "600", marginBottom: "4px", textAlign: "center" }}>
                       {m.name}
                     </span>
-                    <span className="item-price" style={{ color: "#007bff" }}>
+                    <span className="item-price" style={{ color: "#007bff", fontSize: "14px" }}>
                       Rs. {m.price}
                     </span>
                   </button>
@@ -139,6 +143,7 @@ export default function CreateOrderModal({
             </div>
           </div>
 
+          {/* Selected Items */}
           {createForm.items.length > 0 && (
             <div className="selected-items" style={{ marginTop: "25px" }}>
               <h4>Selected Items</h4>
@@ -212,6 +217,7 @@ export default function CreateOrderModal({
             </div>
           )}
 
+          {/* Action Buttons */}
           <div className="form-actions" style={{ marginTop: "30px", display: "flex", justifyContent: "flex-end", gap: "10px" }}>
             <button type="button" className="btn btn-secondary" onClick={() => setShowCreateOrder(false)} style={{ padding: "10px 20px" }}>
               Cancel

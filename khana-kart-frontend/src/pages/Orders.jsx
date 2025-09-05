@@ -15,7 +15,7 @@ import InvoiceModal from "./InvoiceModal";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 export default function Orders() {
-const { role } = useAuth();
+  const { role } = useAuth();
 
   const [orders, setOrders] = useState([]);
   const [tables, setTables] = useState([]);
@@ -45,8 +45,6 @@ const { role } = useAuth();
   const [qrPaymentMode, setQrPaymentMode] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-
-
 
   const navigate = useNavigate();
   const canCreate = role === "waiter";
@@ -212,44 +210,44 @@ const { role } = useAuth();
       alert("Failed to delete order");
     }
   };
+
   const handlePaymentSuccess = (paidOrder) => {
-  setPaymentSuccess(true);
-  setTimeout(() => setPaymentSuccess(false), 3000);
+    setPaymentSuccess(true);
+    setTimeout(() => setPaymentSuccess(false), 3000);
 
-  if (!paidOrder) return;
+    if (!paidOrder) return;
 
-  // Prepare invoice order structure with calculated fields
-  const discountPercent = paidOrder.discount || 0;
+    // Prepare invoice order structure with calculated fields
+    const discountPercent = paidOrder.discount || 0;
 
-  const itemsWithDetails = paidOrder.items.map(item => {
-    const menuItem = menu.find(m => m.id === item.menu_item_id);
-    const price = Number(menuItem?.price || 0);
-    return {
-      name: menuItem?.name || "Unknown Item",
-      quantity: item.quantity,
-      price,
-      subtotal: price * item.quantity,
-    };
-  });
+    const itemsWithDetails = paidOrder.items.map(item => {
+      const menuItem = menu.find(m => m.id === item.menu_item_id);
+      const price = Number(menuItem?.price || 0);
+      return {
+        name: menuItem?.name || "Unknown Item",
+        quantity: item.quantity,
+        price,
+        subtotal: price * item.quantity,
+      };
+    });
 
-  const subtotal = itemsWithDetails.reduce((sum, item) => sum + item.subtotal, 0);
-  const discountAmount = (subtotal * discountPercent) / 100;
-  const total = subtotal - discountAmount;
+    const subtotal = itemsWithDetails.reduce((sum, item) => sum + item.subtotal, 0);
+    const discountAmount = (subtotal * discountPercent) / 100;
+    const total = subtotal - discountAmount;
 
-  setInvoiceOrder({
-    ...paidOrder,
-    invoice_number: paidOrder.id, // or use another number generator if you want
-    items: itemsWithDetails,
-    subtotal,
-    discount_percent: discountPercent,
-    discount_amount: discountAmount,
-    total,
-  });
+    setInvoiceOrder({
+      ...paidOrder,
+      invoice_number: paidOrder.id, // or use another number generator if you want
+      items: itemsWithDetails,
+      subtotal,
+      discount_percent: discountPercent,
+      discount_amount: discountAmount,
+      total,
+    });
 
-  setShowInvoice(true);
-  setPaymentOrder(null); // Close Payment modal
-};
-
+    setShowInvoice(true);
+    setPaymentOrder(null); // Close Payment modal
+  };
 
   return (
     <div className="orders-container">
@@ -335,7 +333,7 @@ const { role } = useAuth();
         setPaymentSuccess={setPaymentSuccess}
         loadingPayment={loadingPayment}
         menu={menu}
-         setShowInvoice={setShowInvoice}
+        setShowInvoice={setShowInvoice}
         setInvoiceOrder={setInvoiceOrder}
       />
 

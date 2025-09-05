@@ -1,0 +1,152 @@
+.tables-page {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.create-table-form {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.create-table-form input {
+  width: 60px;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.create-table-form button {
+  padding: 6px 12px;
+  background-color: #59447a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.create-table-form button:hover {
+  background-color: #1a451a;
+}
+
+/* Main Page Heading */
+.tables-page h2 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #4b2765; /* fallback */
+  text-align: center;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(90deg, #5a2a82, #3c1f66);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.table-filter {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-weight: 600;
+}
+
+.table-filter label {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.table-filter input,
+.table-filter select {
+  margin-left: 0.3rem;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  width: 100px;
+}
+
+.table-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.table-card {
+  width: 200px;
+  border-radius: 8px;
+  padding: 15px;
+  color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  background-color: #555; /* fallback */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.table-card.available {
+  background-color: #235d25;
+}
+
+.table-card.occupied {
+  background-color: #be170b;
+}
+
+.table-card.reserved {
+  background-color: #eb8e02;
+
+}
+
+.table-card h4 {
+  margin: 0 0 10px 0;
+}
+
+.table-card p {
+  margin: 6px 0;
+  font-weight: 500;
+}
+
+.table-card label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.table-card input,
+.table-card select {
+  margin-top: 4px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.card-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.card-actions button {
+  background-color: white;
+  color: black;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+}
+
+.card-actions button:hover {
+  opacity: 0.9;
+}

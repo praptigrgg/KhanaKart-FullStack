@@ -13,7 +13,7 @@ import PrivateRoute from './components/PrivateRoute';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { useLocation } from 'react-router-dom';
-
+import TablesPage from './pages/TablesPage';
 import './styles.css';
 
 export default function App() {
@@ -51,7 +51,8 @@ export default function App() {
               <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
               <Route path="/profiles/:id" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
               <Route path="/profiles" element={<ProfilePage />} />
-              
+              <Route path="/tables" element={<TablesPage />} />
+
               {/* Only Admin can access this route */}
              <Route
   path="/admin/profiles"
