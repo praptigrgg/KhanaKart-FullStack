@@ -112,6 +112,7 @@ const name = res?.data?.user?.name || form.name
               <option value="admin">Admin</option>
               <option value="waiter">Waiter</option>
               <option value="kitchen">Kitchen</option>
+              <option value="cashier">Cashier</option>
             </select>
           </div>
 

@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 
-
-import './TablesPage.css'; // assuming you create this file
+import './TablesPage.css';
 
 export default function TablesPage() {
     const [tables, setTables] = useState([]);
@@ -16,19 +15,26 @@ export default function TablesPage() {
     const [editForm, setEditForm] = useState({ capacity: 4, status: 'available' });
 
     const [statusFilter, setStatusFilter] = useState('all');
-    const [capacityFilter, setCapacityFilter] = useState(''); // NEW state for capacity filter
+    const [capacityFilter, setCapacityFilter] = useState('');
     const [orders, setOrders] = useState([]);
 
-    const { role } = useAuth(); // 🔑 check user role
+    const { role } = useAuth();
 
-    const fetchTables = async () => {
+    const fetchTablesAndOrders = async () => {
         setLoading(true);
         try {
-            const res = await api.get('/tables');
-            setTables(res.data);
+            const [tablesRes, ordersRes] = await Promise.all([
+                api.get('/tables'),
+                api.get('/orders'),
+            ]);
+            setTables(tablesRes.data);
+            setOrders(ordersRes.data.data || []); // <---- Important fix here!
             setError(null);
+            fetchTablesAndOrders();
         } catch (err) {
-            setError('Failed to load tables');
+            setError('Failed to load tables or orders: ' + err.message);
+            setTables([]);
+            setOrders([]);
         }
         setLoading(false);
     };
@@ -44,7 +50,7 @@ export default function TablesPage() {
                 count: Number(count),
                 capacity: Number(capacity),
             });
-            fetchTables();
+            fetchTablesAndOrders();
             setCount(1);
             setCapacity(4);
         } catch {
@@ -68,7 +74,7 @@ export default function TablesPage() {
                 status: editForm.status,
             });
             setEditingId(null);
-            fetchTables();
+            fetchTablesAndOrders();
         } catch {
             alert('Failed to update table');
         }
@@ -78,25 +84,10 @@ export default function TablesPage() {
         if (!window.confirm('Are you sure you want to delete this table?')) return;
         try {
             await api.delete(`/tables/${id}`);
-            fetchTables();
+            fetchTablesAndOrders();
         } catch {
             alert('Failed to delete table');
         }
-    };
-    const fetchTablesAndOrders = async () => {
-        setLoading(true);
-        try {
-            const [tablesRes, ordersRes] = await Promise.all([
-                api.get('/tables'),
-                api.get('/orders'),
-            ]);
-            setTables(tablesRes.data);
-            setOrders(ordersRes.data);
-            setError(null);
-        } catch (err) {
-            setError('Failed to load tables or orders');
-        }
-        setLoading(false);
     };
 
     // Filter by status AND capacity
@@ -110,7 +101,6 @@ export default function TablesPage() {
         <div className="tables-page">
             <h2>Manage Tables</h2>
 
-            {/* Admin: Bulk create form */}
             {role === 'admin' && (
                 <form onSubmit={handleCreateTables} className="create-table-form">
                     <label>
@@ -137,7 +127,6 @@ export default function TablesPage() {
                 </form>
             )}
 
-            {/* Status Filter and Capacity Filter */}
             <div className="table-filter">
                 <label>Filter by Status:&nbsp;</label>
                 <select
@@ -163,7 +152,6 @@ export default function TablesPage() {
                 </label>
             </div>
 
-            {/* Cards */}
             {loading ? (
                 <p>Loading tables...</p>
             ) : error ? (
@@ -172,6 +160,9 @@ export default function TablesPage() {
                 <div className="table-cards">
                     {filteredTables.map((table) => {
                         const isEditing = editingId === table.id;
+                        // Find order for this table
+                        const order = orders.find((o) => o.table_id === table.id);
+
                         return (
                             <div
                                 key={table.id}
@@ -213,6 +204,10 @@ export default function TablesPage() {
                                     <>
                                         <p><strong>Capacity:</strong> {table.capacity}</p>
                                         <p><strong>Status:</strong> {table.status}</p>
+                                        {/* Show order status ONLY if table is reserved and order exists */}
+                                        {table.status === 'occupied' && order && (
+                                            <p><strong>Order Status:</strong> {order.status}</p>
+                                        )}
                                         {role === 'admin' && (
                                             <div className="card-actions">
                                                 <button onClick={() => startEditing(table)}>Edit</button>

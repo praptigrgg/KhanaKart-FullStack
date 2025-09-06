@@ -17,9 +17,13 @@ export default function CreateOrderModal({
 
   if (!showCreateOrder) return null;
 
-  // Group menu items by category
+  // Group menu items by category and filter by searchTerm
   const groupedMenu = menu
-    .filter((m) => m.is_available && m.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter(
+      (m) =>
+        m.is_available &&
+        m.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
     .reduce((acc, item) => {
       if (!acc[item.category]) acc[item.category] = [];
       acc[item.category].push(item);
@@ -38,6 +42,7 @@ export default function CreateOrderModal({
         <div className="modal-header">
           <h3 id="create-order-title">Create New Order</h3>
           <button
+            type="button"
             className="btn btn-icon"
             onClick={() => setShowCreateOrder(false)}
             aria-label="Close create order modal"
@@ -46,14 +51,25 @@ export default function CreateOrderModal({
           </button>
         </div>
 
-        <form onSubmit={(e) => handleSubmit(e, "create")} className="order-form">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit(e, "create");
+          }}
+          className="order-form"
+        >
           <div className="form-row">
             <div className="form-group">
-              <label className="form-label">Select Table *</label>
+              <label className="form-label" htmlFor="table-select">
+                Select Table *
+              </label>
               <select
+                id="table-select"
                 className="form-input"
                 value={createForm.table_id}
-                onChange={(e) => setCreateForm((f) => ({ ...f, table_id: e.target.value }))}
+                onChange={(e) =>
+                  setCreateForm((f) => ({ ...f, table_id: e.target.value }))
+                }
                 required
               >
                 <option value="">Choose a table</option>
@@ -68,13 +84,21 @@ export default function CreateOrderModal({
             </div>
 
             <div className="form-group">
-              <label className="form-label">Discount (%)</label>
+              <label className="form-label" htmlFor="discount-input">
+                Discount (%)
+              </label>
               <input
+                id="discount-input"
                 type="number"
                 className="form-input"
                 placeholder="0"
                 value={createForm.discount}
-                onChange={(e) => setCreateForm((f) => ({ ...f, discount: e.target.value }))}
+                onChange={(e) =>
+                  setCreateForm((f) => ({
+                    ...f,
+                    discount: e.target.value,
+                  }))
+                }
                 min={0}
                 max={100}
               />
@@ -82,19 +106,23 @@ export default function CreateOrderModal({
           </div>
 
           <div className="form-group">
-            <label className="form-label">Search Menu</label>
+            <label className="form-label" htmlFor="menu-search">
+              Search Menu
+            </label>
             <input
+              id="menu-search"
               type="text"
               className="form-input"
               placeholder="Search by name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              autoComplete="off"
             />
           </div>
 
           <div className="form-group">
             <label className="form-label">Add Menu Items</label>
-            <div className="grouped-menu-container">
+            <div className="grouped-menu-container" aria-label="Menu items grouped by category">
               {Object.entries(groupedMenu).map(([category, items]) => (
                 <div key={category} className="menu-category">
                   <h5 className="category-title">{category}</h5>
@@ -105,6 +133,7 @@ export default function CreateOrderModal({
                         key={m.id}
                         className="menu-item-btn"
                         onClick={() => addItemToForm(m.id, "create")}
+                        aria-label={`Add ${m.name} priced Rs. ${m.price}`}
                       >
                         <span className="item-name">{m.name}</span>
                         <span className="item-price">Rs. {m.price}</span>
@@ -117,7 +146,7 @@ export default function CreateOrderModal({
           </div>
 
           {createForm.items.length > 0 && (
-            <div className="selected-items">
+            <div className="selected-items" aria-live="polite">
               <h4>Selected Items</h4>
               <div className="items-list">
                 {createForm.items.map((item, idx) => {
@@ -134,8 +163,10 @@ export default function CreateOrderModal({
                           className="quantity-input"
                           value={item.quantity}
                           min={1}
+                          aria-label={`Quantity of ${menuItem?.name}`}
                           onChange={(e) => {
                             const qty = Number(e.target.value);
+                            if (qty < 1) return;
                             setCreateForm((f) => ({
                               ...f,
                               items: f.items.map((x, j) =>
@@ -162,7 +193,7 @@ export default function CreateOrderModal({
                   );
                 })}
               </div>
-              <div className="selected-items-total">
+              <div className="selected-items-total" aria-live="polite">
                 Total: Rs.{" "}
                 {createForm.items
                   .reduce((sum, item) => {
@@ -179,14 +210,11 @@ export default function CreateOrderModal({
               type="button"
               className="btn btn-secondary"
               onClick={() => setShowCreateOrder(false)}
+              disabled={submitting}
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={submitting}
-            >
+            <button type="submit" className="btn btn-primary" disabled={submitting}>
               {submitting ? "Creating..." : "Create Order"}
             </button>
           </div>

@@ -139,7 +139,7 @@ function generateInvoiceHTML(order, includeStyles = true) {
     <div class="invoice-container">
       <div class="invoice-header">
         <h2>KhanaKart</h2>
-        <p>Invoice #: ${order.invoice_number}</p>
+        <p>Invoice : ${order.invoice_number}</p>
         <p>Date: ${new Date().toLocaleDateString()}</p>
       </div>
       <table class="invoice-table">
@@ -199,7 +199,7 @@ const closeInvoice = () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Invoice #${invoiceOrder.invoice_number}</title>
+        <title>Invoice ${invoiceOrder.invoice_number}</title>
         <meta charset="UTF-8" />
         <style>${invoiceStyles}</style>
       </head>

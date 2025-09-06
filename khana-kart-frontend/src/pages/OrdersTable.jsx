@@ -150,7 +150,7 @@ export default function OrdersTable({
                   Date <SortIcon columnKey="created_at" />
                 </div>
               </th>
-             {role !== "admin" && <th>Actions</th>}
+              {role !== "admin" && <th>Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -244,8 +244,8 @@ export default function OrdersTable({
                               <FaCheck /> Paid
                             </span>
                           ) : (
-                            role === 'waiter' && (
-                              <>
+                            <>
+                              {(role === 'waiter' || role === 'cashier') && (
                                 <button
                                   className="btn btn-success btn-sm"
                                   onClick={() => setPaymentOrder({ ...order, total, totalAfterDiscount })}
@@ -253,25 +253,31 @@ export default function OrdersTable({
                                 >
                                   <FaCreditCard />
                                 </button>
-                                <button
-                                  className="btn btn-secondary btn-sm"
-                                  onClick={() => {
-                                    setAddItemsOrder(order);
-                                    setAddItemsForm({ items: [] });
-                                  }}
-                                  title="Add Items"
-                                >
-                                  <FaPlus />
-                                </button>
-                                <button
-                                  className="btn btn-danger btn-sm"
-                                  onClick={() => setDeleteConfirm(order)}
-                                  title="Delete Order"
-                                >
-                                  <FaTrash />
-                                </button>
-                              </>
-                            )
+                              )}
+
+                              {role === 'waiter' && (
+                                <>
+                                  <button
+                                    className="btn btn-secondary btn-sm"
+                                    onClick={() => {
+                                      setAddItemsOrder(order);
+                                      setAddItemsForm({ items: [] });
+                                    }}
+                                    title="Add Items"
+                                  >
+                                    <FaPlus />
+                                  </button>
+                                  <button
+                                    className="btn btn-danger btn-sm"
+                                    onClick={() => setDeleteConfirm(order)}
+                                    title="Delete Order"
+                                  >
+                                    <FaTrash />
+                                  </button>
+                                </>
+                              )}
+                            </>
+
                           )}
                         </div>
 

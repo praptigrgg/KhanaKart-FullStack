@@ -89,6 +89,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/payment/create', [PaymentController::class, 'createPaymentRequest']);
     Route::get('/payment/callback', [PaymentController::class, 'paymentCallback'])->name('payment.callback');
 
+        Route::get('/invoices', [InvoiceController::class, 'index']);
     Route::get('/invoices/{id}', [InvoiceController::class, 'show']);
 
     Route::get('/dashboard', [AuthController::class, 'dashboard']);
