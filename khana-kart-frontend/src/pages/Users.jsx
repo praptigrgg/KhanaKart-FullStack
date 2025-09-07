@@ -9,18 +9,18 @@ const styles = {
     margin: "2rem auto",
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
     color: "#333",
-    backgroundColor: "#f6ebffff",
+    backgroundColor: "#ffffffff",
     padding: "2rem",
     borderRadius: 8,
     boxShadow: "0 0 12px rgba(0,0,0,0.1)",
   },
   heading: {
-    color: "#4a3060",
+    color: "#92553a",
     marginBottom: "1.5rem",
     textAlign: "center",
   },
   form: {
-    backgroundColor: "#f6ebffff",
+    backgroundColor: "#dec6b8ff",
     padding: "1.5rem",
     borderRadius: 6,
     marginBottom: "2rem",
@@ -39,14 +39,14 @@ const styles = {
     outline: "none",
   },
   inputFocus: {
-    borderColor: "#4a3060",
+    borderColor: "#ae836d",
     boxShadow: "0 0 6px rgba(41,128,185,0.3)",
   },
   label: {
     display: "block",
     fontWeight: 600,
     marginBottom: 4,
-    color: "#4a3060",
+    color: "#000000ff",
   },
   select: {
     width: "100%",
@@ -64,12 +64,12 @@ const styles = {
     fontWeight: 600,
     fontSize: 16,
     border: "none",
-    backgroundColor: "#4a3060",
+    backgroundColor: "#ae836d",
     color: "white",
     transition: "background-color 0.25s ease",
   },
   buttonPrimaryHover: {
-    backgroundColor: "#4a3060",
+    backgroundColor: "#ae836d",
   },
   buttonCancel: {
     cursor: "pointer",
@@ -99,7 +99,7 @@ const styles = {
     padding: "0.8rem 1rem",
     textAlign: "left",
     borderBottom: "1px solid #ddd",
-    backgroundColor: "#4a3060",
+    backgroundColor: "#a9734c",
     color: "white",
     fontWeight: 600,
   },
@@ -311,6 +311,8 @@ export default function Users() {
               <option value="waiter">Waiter</option>
               <option value="kitchen">Kitchen</option>
               <option value="admin">Admin</option>
+              <option value="cashier">Cashier</option>
+
             </select>
           </div>
         </div>

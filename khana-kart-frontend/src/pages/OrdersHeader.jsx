@@ -11,7 +11,7 @@ export default function OrdersHeader({
 }) {
   return (
     <div className="card-header">
-      <h2 className="card-title">Orders Management</h2>
+      <h2 className="card-title" style={{color: '#6d4e39'}}>Orders Management</h2>
       <div className="d-flex align-center gap-2">
         <div className="search-box">
           <FaSearch className="search-icon" />

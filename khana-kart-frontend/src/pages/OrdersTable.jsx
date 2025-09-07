@@ -187,7 +187,7 @@ export default function OrdersTable({
                       {table ? (
                         <span className="table-info">
                           Table {table.table_number}<br></br>
-                          <small>{table.capacity}4 seats</small>
+                          <small>{table.capacity} seats</small>
                         </span>
                       ) : (
                         "—"

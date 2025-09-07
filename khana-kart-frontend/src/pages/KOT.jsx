@@ -101,10 +101,10 @@ export default function KOT({ onCloseInvoice }) {
           border: 1px solid #ddd;
           padding: 8px;
           text-align: left;
-          color: #4a3060;
+          color: #6d4e39;
         }
         th {
-          background-color: #e1dbf7;
+          background-color: #f7e8dbff;
         }
       </style>
       </head><body>
@@ -165,8 +165,8 @@ export default function KOT({ onCloseInvoice }) {
         paginatedInvoices.map((inv) => (
           <div key={inv.id} className={styles.invoiceCard}>
             <div className={styles.statuses}>
-              <span className={styles.statusLabel}>Food: {inv.foodStatus}</span>
-              <span className={styles.statusLabel}>Payment: {inv.isPaid ? 'Paid' : 'Unpaid'}</span>
+              <span className={styles.statusLabel} style={{backgroundColor: '#ae836d', color: '#ffffff'}}>Food: {inv.foodStatus}</span>
+              <span className={styles.statusLabel}style={{backgroundColor: '#ae836d', color: '#ffffff'}}>Payment: {inv.isPaid ? 'Paid' : 'Unpaid'}</span>
             </div>
 
             <div
@@ -179,7 +179,7 @@ export default function KOT({ onCloseInvoice }) {
                 onClick={() => handlePrint(inv)}
                 className="printBtn"
                 aria-label={`Print invoice ${inv.id}`}
-                style={{ backgroundColor: '#6b5c78ff', color: 'white' }}
+                style={{ backgroundColor: '#ae836d', color: 'white' }}
               >
                 Print
               </button>

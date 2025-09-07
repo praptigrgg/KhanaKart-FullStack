@@ -39,7 +39,7 @@ const styles = {
     padding: "8px 16px",
   },
   buttonPrimary: {
-    backgroundColor: "#2563eb", // blue-600
+    backgroundColor: "#a9734c", // blue-600
     color: "white",
     padding: "10px 16px",
     borderRadius: 4,
@@ -48,7 +48,7 @@ const styles = {
     fontWeight: "600",
   },
   buttonPrimaryDisabled: {
-    backgroundColor: "#2563eb",
+    backgroundColor: "rgba(135, 138, 144, 1)",
     opacity: 0.5,
     cursor: "wait",
   },

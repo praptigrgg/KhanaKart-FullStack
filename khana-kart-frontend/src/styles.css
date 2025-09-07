@@ -1,12 +1,12 @@
 /* App.css */
 :root {
-   --primary: #4a3060;       /* New purple */
-  --primary-dark: #3a254d;
+   --primary: #ae836d;       /* New purple */
+  --primary-dark: #92553a;
   --secondary: #f97316;
   --success: #10b981;
   --danger: #ef4444;
   --warning: #f59e0b;
-  --info: #3b82f6;
+  --info: #6e5065;
   
   --text-primary: #1f2937;
   --text-secondary: #6b7280;
@@ -114,7 +114,7 @@ body {
 
 /* Enhanced Card Component */
 .card {
-  background: var(--bg-primary);
+  background: #ffffff;
   border-radius: 12px;
   box-shadow: var(--shadow);
   padding: 1.5rem;
@@ -139,7 +139,7 @@ body {
 .card-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #6d4e39;
 }
 
 /* Enhanced Button Styles */
@@ -386,7 +386,7 @@ body {
 
 .table-btn-edit {
   background-color: rgba(59, 130, 246, 0.1);
-  color: #1d4ed8;
+  color: #6d4e39;
 }
 
 .table-btn-edit:hover {

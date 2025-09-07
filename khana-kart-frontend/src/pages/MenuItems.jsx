@@ -307,7 +307,7 @@ export default function MenuItems() {
                         {item.is_available ? 'Available' : 'Unavailable'}
                       </span>
                     </div>
-                    <p className="menu-card-description">{item.description || 'No description available'}</p>
+                    <p className="menu-card-description" style={{color:'#c9c9c9ff'}}>{item.description || 'No description available'}</p>
                     <div className="menu-card-meta">
                       <span className="category-badge">{item.category || 'Uncategorized'}</span>
                       <span className="price-tag">Rs. {Number(item.price).toFixed(2)}</span>
@@ -374,14 +374,16 @@ export default function MenuItems() {
 
       <style>{`
         .menu-items-container {
+        background:
+
           padding: 1rem;
         }
         .add-item-card {
-          background: var(--bg-secondary);
+          background: #ffffffff;
           border-radius: 12px;
           padding: 1.5rem;
           margin-bottom: 1.5rem;
-          border: 1px solid var(--border-light);
+          border: 1px solid #4e392aff;
         }
         .form-actions {
           display: flex;
@@ -407,7 +409,7 @@ export default function MenuItems() {
           margin-top: 1.5rem;
         }
         .menu-card {
-          background-color: #4a3060;
+          background-color:  #845f47ff;
           border: 1px solid var(--border-light);
           border-radius: 12px;
           padding: 1rem 1.25rem;
@@ -430,7 +432,7 @@ export default function MenuItems() {
           font-weight: 600;
         }
         .menu-card-description {
-          color: white;
+          color:  #ffffffff;
           font-size: 0.95rem;
           margin-bottom: 1rem;
         }

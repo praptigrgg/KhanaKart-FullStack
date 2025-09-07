@@ -1,8 +1,8 @@
 .container {
   padding: 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f9f8fc;
-  color: #3c3a4d;
+  background-color: #fcfaf8;
+  color: #ae836d;
   max-width: 900px;
   margin: 0 auto;
 
@@ -13,11 +13,11 @@
 }
 
 .title {
-  color: #6b5c78ff;
+  color: #6d4e39;
   font-size: 28px;
   margin-bottom: 20px;
   text-align: center;
-  border-bottom: 2px solid #4a3060;
+  border-bottom: 2px solid #ae836d;
   padding-bottom: 10px;
   font-weight: 600;
   grid-column: 1 / -1; /* make title span full width */
@@ -36,7 +36,7 @@
   display: block;
   font-weight: 600;
   margin-bottom: 5px;
-  color: #564170ff;
+  color: #6d4e39;
 }
 
 .filterGroup select,
@@ -65,7 +65,7 @@
 
 .statusLabel {
   background-color: #e1dbf7;
-  color: #564170ff;
+  color: #6d4e39;
   padding: 4px 10px;
   border-radius: 10px;
   font-weight: 600;
@@ -75,7 +75,7 @@
 
 .invoiceHTML {
   margin-top: 10px;
-  color: #4a3060;
+  color: #000000;
 }
 
 .invoiceHTML table {
@@ -93,8 +93,8 @@
 }
 
 .invoiceHTML th {
-  background-color: #e1dbf7;
-  color: #564170ff;
+  background-color: #ae836d;
+  color: #000000;
   font-weight: 600;
 }
 
@@ -116,7 +116,7 @@ button {
 }
 
 button.printBtn:hover {
-  background-color: #564170ff;
+  background-color: #6d4e39;
 }
 
 button.closeBtn:hover {
@@ -133,7 +133,7 @@ button.closeBtn:hover {
 }
 
 .pagination button {
-  background-color: #6b5c78ff;
+  background-color: #ae836d;
   color: white;
 }
 
@@ -157,7 +157,7 @@ button.closeBtn:hover {
     box-shadow: none !important;
     border: none !important;
     background-color: #fff !important;
-    color: #3c3a4d !important;
+    color: #674b34 !important;
     margin: 0 !important;
     padding: 0 !important;
   }
@@ -173,13 +173,13 @@ button.closeBtn:hover {
     border: 1px solid #ddd !important;
     padding: 8px !important;
     text-align: left !important;
-    color: #4a3060 !important;
+    color: #ae836d !important;
     font-size: 14px !important;
   }
 
   .invoiceHTML th {
     background-color: #e1dbf7 !important;
-    color: #564170ff !important;
+    color: #ae836d !important;
   }
 
   /* Hide UI elements on print */

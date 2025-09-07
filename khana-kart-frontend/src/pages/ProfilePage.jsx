@@ -46,12 +46,12 @@ const styles = {
     border: "none",
     cursor: "pointer",
     fontWeight: 600,
-    backgroundColor: "#2d72d9",
+    backgroundColor: "#ae836d",
     color: "white",
     transition: "background-color 0.3s ease",
   },
   btnPrimaryHover: {
-    backgroundColor: "#1a4bb8",
+    backgroundColor: "#60483bff",
   },
   btnSecondary: {
     padding: "0.5rem 1rem",

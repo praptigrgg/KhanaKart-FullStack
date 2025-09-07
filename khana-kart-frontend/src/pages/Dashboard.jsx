@@ -34,13 +34,13 @@ console.log('AuthContext in Dashboard:', { role, name });
 
   return (
     <div style={{ maxWidth: 900, margin: 'auto', padding: 20, fontFamily: 'Arial, sans-serif' }}>
-      <h1 style={{color:'#4a3060', borderBottom: '1px solid #6b577bff', paddingBottom: 10, textTransform: 'capitalize', marginBottom: 20 }}>
+      <h1 style={{color:'#000000ff', borderBottom: '1px solid #886b56ff', paddingBottom: 10, textTransform: 'capitalize', marginBottom: 20 }}>
         Dashboard ({role})
       </h1>
 
       {role === 'admin' && (
         <div style={{ marginBottom: 20 }}>
-          <label htmlFor="date-picker" style={{ color:'#4a3060',fontWeight: 'bold', marginRight: 10 }}>
+          <label htmlFor="date-picker" style={{ color:'#373737ff',fontWeight: 'bold', marginRight: 10 }}>
             Select Date:
           </label>
           <input
@@ -49,7 +49,7 @@ console.log('AuthContext in Dashboard:', { role, name });
             value={date}
             max={new Date().toISOString().slice(0, 10)}
             onChange={e => setDate(e.target.value)}
-            style={{ padding: 6, borderRadius: 4, border: '1px solid #4a3060' }}
+            style={{ padding: 6, borderRadius: 4, border: '1px solid #765741ff' }}
           />
         </div>
       )}
@@ -88,7 +88,7 @@ console.log('AuthContext in Dashboard:', { role, name });
                     key={label}
                     style={{
                       flex: '1 1 250px',
-                      backgroundColor: '#4a3060',
+                      backgroundColor: '#a9734c',
                       color: '#ffffff',
                       padding: 20,
                       borderRadius: 8,
@@ -111,7 +111,7 @@ console.log('AuthContext in Dashboard:', { role, name });
                       <XAxis dataKey="name" />
                       <YAxis allowDecimals={false} tickFormatter={(value) => Math.floor(value)} />
                       <Tooltip />
-                      <Line type="monotone" dataKey="orders" stroke="#8884d8" strokeWidth={3} />
+                      <Line type="monotone" dataKey="orders" stroke="#dbb294ff" strokeWidth={3} />
                     </LineChart>
                   </ResponsiveContainer>
                 ) : (
@@ -195,7 +195,7 @@ const tableHeaderStyle = {
   borderBottom: '2px solid #ccc',
   textAlign: 'left',
   padding: '8px 12px',
-  backgroundColor: '#4a3060',
+  backgroundColor: '#a9734c',
   color:'#ffffffff',
 }
 
@@ -204,7 +204,7 @@ const tableCellStyle = {
 }
 
 const cardStyle = {
-  backgroundColor: '#4a3060',
+  backgroundColor: '#6d4e39',
   color:'#ffff',
   padding: 20,
   borderRadius: 8,

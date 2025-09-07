@@ -1,10 +1,10 @@
 /* Sidebar.css */
 :root {
   --sidebar-width: 280px;
-  --sidebar-bg: #3b2d42;      /* Darker purple-blue */
-  --sidebar-text: #e0e0e0;    /* Light grey text */
-  --sidebar-hover: #bcb2c3;   /* Slightly lighter hover */
-  --sidebar-active: #8b749a;  /* Vibrant purple */
+  --sidebar-bg: #6d4e39;      /* Darker purple-blue */
+  --sidebar-text: #ffffff;    /* Light grey text */
+  --sidebar-hover: #f4be8b;   /* Slightly lighter hover */
+  --sidebar-active: #ae836d;  /* Vibrant purple */
   --sidebar-shadow: rgba(0, 0, 0, 0.4);
 }
 
@@ -174,7 +174,7 @@
   padding: 1.1rem 1.3rem;
   width: 220px;
   box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
-  color: #2d2f42;
+  color: #000000;
   z-index: 110;
   user-select: none;
 }
@@ -185,7 +185,7 @@
 }
 
 .dropdown-item strong {
-  color: #66678e;
+  color: #6d4e39;
   font-weight: 600;
 }
 

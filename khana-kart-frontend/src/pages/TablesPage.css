@@ -19,7 +19,7 @@
 
 .create-table-form button {
   padding: 6px 12px;
-  background-color: #59447a;
+  background-color: #6d4e39;
   color: white;
   border: none;
   border-radius: 4px;
@@ -37,13 +37,13 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-size: 2.5rem;
   font-weight: 700;
-  color: #4b2765; /* fallback */
+  color: #6d4e39; /* fallback */
   text-align: center;
   margin-bottom: 30px;
   text-transform: uppercase;
   letter-spacing: 3px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-  background: linear-gradient(90deg, #5a2a82, #3c1f66);
+  background: linear-gradient(90deg, #6d4e39, #94694b);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

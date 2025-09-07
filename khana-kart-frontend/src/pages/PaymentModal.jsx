@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { FaTimes, FaMoneyBillWave, FaQrcode, FaArrowLeft, FaCheck } from "react-icons/fa";
+import {
+  FaTimes,
+  FaMoneyBillWave,
+  FaQrcode,
+  FaArrowLeft,
+  FaCheck,
+} from "react-icons/fa";
 import { markPaid } from "../api/client";
 import { formatOrderForInvoice } from "../utils/formatOrderForInvoice";
 
@@ -40,49 +46,69 @@ export default function PaymentModal({
   onPaymentSuccess,
 }) {
   const [localLoading, setLocalLoading] = useState(false);
+  const [discountInput, setDiscountInput] = useState(
+    paymentOrder?.discount || 0
+  );
 
-  // Handle Cash Payment
+  if (!paymentOrder) return null;
+
+  const discountAmount = (paymentOrder.total * discountInput) / 100;
+  const totalAfterDiscount = paymentOrder.total - discountAmount;
+
   const handlePayWithCash = async (orderId) => {
     try {
       setLocalLoading(true);
-      await markPaid(orderId, "cash");
+      await markPaid(orderId, "cash"); // Update if your API supports discount
       setPaymentSuccess(true);
       setTimeout(() => setPaymentSuccess(false), 3000);
-      setInvoiceOrder(formatOrderForInvoice(paymentOrder, menu));
+
+      setInvoiceOrder(
+        formatOrderForInvoice(
+          { ...paymentOrder, discount: discountInput, totalAfterDiscount },
+          menu
+        )
+      );
       setShowInvoice(true);
       setPaymentOrder(null);
     } catch (error) {
       console.error("Payment error response:", error.response?.data || error.message);
-      alert("Error processing payment: " + (error.response?.data?.message || error.message));
+      alert(
+        "Error processing payment: " +
+          (error.response?.data?.message || error.message)
+      );
     } finally {
       setLocalLoading(false);
     }
   };
 
-  // Handle QR Payment
   const handlePayWithQr = async (orderId) => {
     try {
       setLocalLoading(true);
-      await markPaid(orderId, "qr");
+      await markPaid(orderId, "qr"); // Update if your API supports discount
       if (onPaymentSuccess) {
-        onPaymentSuccess(paymentOrder); // paymentOrder is passed to PaymentModal as prop
+        onPaymentSuccess(paymentOrder);
       }
       setPaymentSuccess(true);
       setTimeout(() => setPaymentSuccess(false), 3000);
 
-      setInvoiceOrder(formatOrderForInvoice(paymentOrder, menu));
+      setInvoiceOrder(
+        formatOrderForInvoice(
+          { ...paymentOrder, discount: discountInput, totalAfterDiscount },
+          menu
+        )
+      );
       setShowInvoice(true);
-
       setPaymentOrder(null);
       setQrPaymentMode(false);
     } catch (error) {
-      alert("Error processing QR payment: " + (error.message || JSON.stringify(error)));
+      alert(
+        "Error processing QR payment: " +
+          (error.message || JSON.stringify(error))
+      );
     } finally {
       setLocalLoading(false);
     }
   };
-
-  if (!paymentOrder) return null;
 
   if (qrPaymentMode) {
     return (
@@ -96,7 +122,11 @@ export default function PaymentModal({
         role="dialog"
         aria-labelledby="qr-payment-title"
       >
-        <div style={modalStyle} className="qr-modal" onClick={(e) => e.stopPropagation()}>
+        <div
+          style={modalStyle}
+          className="qr-modal"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="modal-header">
             <button
               className="btn btn-icon back-btn"
@@ -119,29 +149,49 @@ export default function PaymentModal({
           </div>
 
           <div className="qr-payment-content">
-            <div className="qr-code-placeholder" aria-label="QR code for payment">
+            <div
+              className="qr-code-placeholder"
+              aria-label="QR code for payment"
+            >
               <div className="qr-image">
-                <div className="qr-placeholder-text" style={{ textAlign: "center", color: "#555" }}>
+                <div
+                  className="qr-placeholder-text"
+                  style={{ textAlign: "center", color: "#555" }}
+                >
                   <FaQrcode size={64} />
                   <p>QR Code Image</p>
                 </div>
               </div>
-              <p className="scan-instruction" style={{ textAlign: "center", marginTop: "10px" }}>
+              <p
+                className="scan-instruction"
+                style={{ textAlign: "center", marginTop: "10px" }}
+              >
                 Scan the QR code to complete payment
               </p>
             </div>
 
-            <div className="payment-amount" style={{ textAlign: "center", marginTop: "20px" }}>
+            <div
+              className="payment-amount"
+              style={{ textAlign: "center", marginTop: "20px" }}
+            >
               <h4>Amount to Pay:</h4>
-              <p className="amount" style={{ fontSize: "24px", fontWeight: "bold" }}>
-                Rs.{" "}
-                {paymentOrder.totalAfterDiscount !== undefined
-                  ? paymentOrder.totalAfterDiscount.toFixed(2)
-                  : paymentOrder.total.toFixed(2)}
+              <p
+                className="amount"
+                style={{ fontSize: "24px", fontWeight: "bold" }}
+              >
+                Rs. {totalAfterDiscount.toFixed(2)}
               </p>
             </div>
 
-            <div className="payment-confirmation-buttons" style={{ marginTop: "30px", display: "flex", justifyContent: "center", gap: "10px" }}>
+            <div
+              className="payment-confirmation-buttons"
+              style={{
+                marginTop: "30px",
+                display: "flex",
+                justifyContent: "center",
+                gap: "10px",
+              }}
+            >
               <button
                 className="btn btn-success"
                 onClick={() => handlePayWithQr(paymentOrder.id)}
@@ -169,9 +219,6 @@ export default function PaymentModal({
     );
   }
 
-  const discountPercent = paymentOrder.discount || 0;
-  const discountAmount = (paymentOrder.total * discountPercent) / 100;
-
   return (
     <div
       style={overlayStyle}
@@ -180,16 +227,41 @@ export default function PaymentModal({
       role="dialog"
       aria-labelledby="payment-title"
     >
-      <div style={modalStyle} className="payment-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div
+        style={modalStyle}
+        className="payment-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div
+          className="modal-header"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <h3 id="payment-title">Payment - Order #{paymentOrder.id}</h3>
-          <button className="btn btn-icon" onClick={() => setPaymentOrder(null)} aria-label="Close payment modal" style={{ fontSize: "18px", background: "none", border: "none", cursor: "pointer" }}>
+          <button
+            className="btn btn-icon"
+            onClick={() => setPaymentOrder(null)}
+            aria-label="Close payment modal"
+            style={{
+              fontSize: "18px",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
             <FaTimes />
           </button>
         </div>
 
         <div className="payment-details" style={{ marginTop: "20px" }}>
-          <div className="payment-items" aria-label="List of order items" style={{ marginBottom: "20px" }}>
+          <div
+            className="payment-items"
+            aria-label="List of order items"
+            style={{ marginBottom: "20px" }}
+          >
             <h4>Order Items</h4>
             {paymentOrder.items.map((item) => {
               const menuItem = menu.find((m) => m.id === item.menu_item_id);
@@ -198,7 +270,12 @@ export default function PaymentModal({
                 <div
                   key={item.id}
                   className="payment-item"
-                  style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #eee" }}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "6px 0",
+                    borderBottom: "1px solid #eee",
+                  }}
                 >
                   <span>{menuItem?.name || "Unknown Item"}</span>
                   <span>× {item.quantity}</span>
@@ -208,27 +285,84 @@ export default function PaymentModal({
             })}
           </div>
 
-          <div className="payment-summary" aria-label="Order summary" style={{ borderTop: "1px solid #ccc", paddingTop: "15px" }}>
-            <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+          <div
+            className="discount-input"
+            style={{ marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}
+          >
+            <label htmlFor="discount">Discount (%):</label>
+            <input
+              type="number"
+              id="discount"
+              value={discountInput}
+              onChange={(e) => {
+                const value = Math.max(0, Math.min(100, Number(e.target.value)));
+                setDiscountInput(value);
+              }}
+              min="0"
+              max="100"
+              style={{
+                width: "80px",
+                padding: "6px",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+              }}
+            />
+          </div>
+
+          <div
+            className="payment-summary"
+            aria-label="Order summary"
+            style={{ borderTop: "1px solid #ccc", paddingTop: "15px" }}
+          >
+            <div
+              className="summary-row"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "8px",
+              }}
+            >
               <span>Subtotal:</span>
               <span>Rs. {paymentOrder.total.toFixed(2)}</span>
             </div>
-            <div className="summary-row" style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-              <span>Discount ({discountPercent}%):</span>
+            <div
+              className="summary-row"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "8px",
+              }}
+            >
+              <span>Discount ({discountInput}%):</span>
               <span>- Rs. {discountAmount.toFixed(2)}</span>
             </div>
-            <div className="summary-row total" style={{ display: "flex", justifyContent: "space-between", fontWeight: "bold", fontSize: "18px", marginTop: "12px", borderTop: "2px solid #8e7ba9ff", paddingTop: "12px", color: "#000000ff" }}>
+            <div
+              className="summary-row total"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                fontWeight: "bold",
+                fontSize: "18px",
+                marginTop: "12px",
+                borderTop: "2px solid #8e7ba9ff",
+                paddingTop: "12px",
+                color: "#000000ff",
+              }}
+            >
               <span>Total:</span>
-              <span>
-                Rs.{" "}
-                {paymentOrder.totalAfterDiscount !== undefined
-                  ? paymentOrder.totalAfterDiscount.toFixed(2)
-                  : paymentOrder.total.toFixed(2)}
-              </span>
+              <span>Rs. {totalAfterDiscount.toFixed(2)}</span>
             </div>
           </div>
 
-          <div className="payment-methods" style={{ marginTop: "25px", display: "flex", justifyContent: "center", gap: "15px" }}>
+          <div
+            className="payment-methods"
+            style={{
+              marginTop: "25px",
+              display: "flex",
+              justifyContent: "center",
+              gap: "15px",
+            }}
+          >
             <button
               className="btn btn-primary payment-method-btn"
               onClick={() => handlePayWithCash(paymentOrder.id)}
@@ -236,7 +370,8 @@ export default function PaymentModal({
               aria-label="Pay with cash"
               style={{ padding: "10px 20px", fontSize: "16px" }}
             >
-              <FaMoneyBillWave /> {(loadingPayment || localLoading) ? "Processing..." : "Cash Payment"}
+              <FaMoneyBillWave />{" "}
+              {loadingPayment || localLoading ? "Processing..." : "Cash Payment"}
             </button>
             <button
               className="btn btn-secondary payment-method-btn"

@@ -133,15 +133,15 @@ export default function RolesPage() {
           type="submit"
           style={{
             padding: '0.5rem 1rem',
-            backgroundColor: '#4CAF50',
+            backgroundColor: '#ae836d',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
             transition: 'background-color 0.2s', // Hover effect without fading
           }}
-          onMouseOver={(e) => e.target.style.backgroundColor = '#45a049'}
-          onMouseOut={(e) => e.target.style.backgroundColor = '#4CAF50'}
+          onMouseOver={(e) => e.target.style.backgroundColor = '#ae836d'}
+          onMouseOut={(e) => e.target.style.backgroundColor = '#ae836d'}
         >
           Add Role
         </button>
@@ -185,7 +185,7 @@ export default function RolesPage() {
                     onClick={() => saveEdit(role.id)}
                     style={{
                       padding: '0.5rem 1rem',
-                      backgroundColor: '#2196F3',
+                      backgroundColor: '#ae836d',
                       color: 'white',
                       border: 'none',
                       borderRadius: '4px',
@@ -217,7 +217,7 @@ export default function RolesPage() {
                       onClick={() => startEdit(role)}
                       style={{
                         padding: '0.5rem 1rem',
-                        backgroundColor: '#2196F3',
+                        backgroundColor: '#5368acff',
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',
@@ -231,7 +231,7 @@ export default function RolesPage() {
                       onClick={() => deleteRole(role.id)}
                       style={{
                         padding: '0.5rem 1rem',
-                        backgroundColor: '#f44336',
+                        backgroundColor: '#b80f03ff',
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',

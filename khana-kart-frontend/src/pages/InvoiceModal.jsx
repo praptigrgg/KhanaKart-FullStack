@@ -50,14 +50,14 @@ const invoiceStyles = `
   .invoice-header {
     text-align: center;
     margin-bottom: 30px;
-    border-bottom: 2px solid #4a3060;
+    border-bottom: 2px solid #6d4e39;
     padding-bottom: 10px;
   }
 
   .invoice-header h2 {
     margin: 0;
     font-size: 32px;
-    color: #6b5c78ff;
+    color: #ae836d;
   }
 
   .invoice-header p {
@@ -104,8 +104,8 @@ const invoiceStyles = `
     font-size: 18px;
     margin-top: 12px;
     padding-top: 12px;
-    border-top: 2px solid #564170ff;
-    color: #6451a1ff;
+    border-top: 2px solid #ae836d;
+    color: #6d4e39;
   }
 
   .thank-you {

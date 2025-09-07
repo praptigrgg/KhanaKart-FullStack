@@ -47,7 +47,7 @@ const styles = {
     fontWeight: 600,
     fontSize: 16,
     border: "none",
-    backgroundColor: "#674b8b",
+    backgroundColor: "#a9734c",
     color: "white",
     transition: "background-color 0.25s ease",
   },

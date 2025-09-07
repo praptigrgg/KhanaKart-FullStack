@@ -4,12 +4,15 @@ use App\Http\Controllers\API\Auth\ForgotPasswordController;
 use App\Http\Controllers\API\Auth\ResetPasswordController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\InvoiceController;
+use App\Http\Controllers\API\ItemController;
 use App\Http\Controllers\API\MenuItemController;
 use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\OrderItemController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\ProfileController;
+use App\Http\Controllers\API\PurchaseController;
 use App\Http\Controllers\API\RoleController;
+use App\Http\Controllers\API\SupplierController;
 use App\Http\Controllers\API\TableController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -78,6 +81,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware(['role:admin,kitchen'])->group(function () {
         Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
     });
+
+
     Route::put('/orders/{id}/pay', [OrderController::class, 'markPaid']);
 
     Route::put('/orders/{orderId}/items/{menuItemId}/status', [OrderItemController::class, 'updateItemStatus']);
@@ -94,6 +99,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/dashboard', [AuthController::class, 'dashboard']);
 
+// Items Routes
+Route::apiResource('items', ItemController::class);
+
+// Suppliers Routes
+Route::apiResource('suppliers', SupplierController::class);
+
+// Purchase Routes (for adding stock or decreasing stock)
+Route::post('purchase/{item_id}', [PurchaseController::class, 'store']);
 
     // Logout (all authenticated users)
     Route::post('/logout', [AuthController::class, 'logout']);

@@ -83,26 +83,7 @@ export default function CreateOrderModal({
               </select>
             </div>
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="discount-input">
-                Discount (%)
-              </label>
-              <input
-                id="discount-input"
-                type="number"
-                className="form-input"
-                placeholder="0"
-                value={createForm.discount}
-                onChange={(e) =>
-                  setCreateForm((f) => ({
-                    ...f,
-                    discount: e.target.value,
-                  }))
-                }
-                min={0}
-                max={100}
-              />
-            </div>
+            
           </div>
 
           <div className="form-group">

@@ -208,12 +208,15 @@ export default function TablesPage() {
                                         {table.status === 'occupied' && order && (
                                             <p><strong>Order Status:</strong> {order.status}</p>
                                         )}
-                                        {role === 'admin' && (
+                                        {['admin', 'cashier', 'waiter'].includes(role) && (
                                             <div className="card-actions">
                                                 <button onClick={() => startEditing(table)}>Edit</button>
-                                                <button onClick={() => deleteTable(table.id)}>Delete</button>
+                                                {role === 'admin' && (
+                                                    <button onClick={() => deleteTable(table.id)}>Delete</button>
+                                                )}
                                             </div>
                                         )}
+
                                     </>
                                 )}
                             </div>

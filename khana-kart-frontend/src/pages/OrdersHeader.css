@@ -11,7 +11,7 @@
 .card-title {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #333;
+  color: #6d4e39;
   margin: 0;
 }
 
@@ -52,7 +52,7 @@
 }
 
 .search-input:focus {
-  border-color: #007bff;
+  border-color: #6d4e39;
 }
 
 .status-filter {
@@ -66,7 +66,7 @@
 }
 
 .status-filter:focus {
-  border-color: #007bff;
+  border-color: #6d4e39;
   outline: none;
 }
 
@@ -84,10 +84,10 @@
 }
 
 .btn-primary {
-  background-color: #4a3060;
+  background-color: #6d4e39;
   color: #fff;
 }
 
 .btn-primary:hover {
-  background-color: #3a254d; /* slightly darker for hover effect */
+  background-color: #4d3425; /* slightly darker for hover effect */
 }

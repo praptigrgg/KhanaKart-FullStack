@@ -13,6 +13,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import KOT from './pages/KOT';
 import RolesPage from './pages/RolesPage'; // <-- Import RolesPage
+import InventoryPage from './pages/InventoryPage';
 
 import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -53,6 +54,8 @@ export default function App() {
                 <Route path="/menu-items" element={<PrivateRoute><MenuItems /></PrivateRoute>} />
                 <Route path="/orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
                 <Route path="/tables" element={<PrivateRoute><TablesPage /></PrivateRoute>} />
+                <Route path="/inventory" element={<PrivateRoute><InventoryPage /></PrivateRoute>} />
+
                 <Route path="/users" element={<PrivateRoute><Users /></PrivateRoute>} />
 
                 {/* Roles page route, admin only */}
@@ -63,6 +66,8 @@ export default function App() {
                 <Route path="/profiles" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
 
                 <Route path="/kot" element={<PrivateRoute><KOT /></PrivateRoute>} />
+
+               
 
                 <Route
                   path="/admin/profiles"
