@@ -63,13 +63,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::apiResource('roles', RoleController::class);
 
-
-        Route::get('/tables', [TableController::class, 'index']);
-        Route::post('/tables/bulk-create', [TableController::class, 'bulkCreate']);
-        Route::put('/tables/{id}', [TableController::class, 'update']);
-        Route::delete('/tables/{id}', [TableController::class, 'destroy']);
     });
 
+// Admin only
+Route::middleware(['role:admin'])->group(function () {
+    Route::get('/tables', [TableController::class, 'index']);
+    Route::post('/tables/bulk-create', [TableController::class, 'bulkCreate']);
+    Route::delete('/tables/{id}', [TableController::class, 'destroy']);
+});
+
+// Admin + Waiter can update status
+Route::middleware(['role:admin,waiter'])->group(function () {
+    Route::put('/tables/{id}', [TableController::class, 'update']);
+});
 
     // Waiter-only routes
     Route::middleware(['role:waiter'])->group(function () {
@@ -106,7 +112,8 @@ Route::apiResource('items', ItemController::class);
 Route::apiResource('suppliers', SupplierController::class);
 
 // Purchase Routes (for adding stock or decreasing stock)
-Route::post('purchase/{item_id}', [PurchaseController::class, 'store']);
+Route::post('purchases', [PurchaseController::class, 'store']);
+Route::get('purchases', [PurchaseController::class, 'index']);
 
     // Logout (all authenticated users)
     Route::post('/logout', [AuthController::class, 'logout']);

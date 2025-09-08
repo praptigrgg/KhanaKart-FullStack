@@ -8,18 +8,16 @@ use App\Http\Controllers\Controller;
 
 class SupplierController extends Controller
 {
-    public function index()
-    {
-        return Supplier::all();
-    }
+    public function index() { return Supplier::all(); }
 
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string',
-            'contact_info' => 'required|json',
+            'contact' => 'required|string',
+            'email' => 'nullable|email',
+            'address' => 'nullable|string',
         ]);
-
         return Supplier::create($request->all());
     }
 

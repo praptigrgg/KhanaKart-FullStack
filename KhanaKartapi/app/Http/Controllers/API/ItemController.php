@@ -8,20 +8,16 @@ use App\Http\Controllers\Controller;
 
 class ItemController extends Controller
 {
-    public function index()
-    {
-        return Item::all();
-    }
+    public function index() { return Item::all(); }
 
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string',
-            'quantity' => 'required|integer',
+            'quantity' => 'required|integer|min:0',
             'unit' => 'required|string',
-            'price' => 'nullable|numeric',
+            'price' => 'nullable|numeric|min:0',
         ]);
-
         return Item::create($request->all());
     }
 

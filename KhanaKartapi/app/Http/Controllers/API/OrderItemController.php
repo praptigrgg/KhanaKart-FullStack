@@ -8,6 +8,7 @@ use App\Models\OrderItem;
 
 class OrderItemController extends Controller
 {
+    // Update order item status by order ID and menu item ID
     public function updateItemStatus(Request $request, $orderId, $menuItemId)
     {
         $request->validate([
@@ -26,6 +27,8 @@ class OrderItemController extends Controller
             'item' => $item,
         ]);
     }
+
+    // Update order item status by item ID
     public function updateStatus(Request $request, $id)
     {
         $request->validate([

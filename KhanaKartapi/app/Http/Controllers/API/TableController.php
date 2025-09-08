@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Models\Table;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class TableController extends Controller
 {
@@ -41,28 +42,38 @@ class TableController extends Controller
 
         return response()->json($newTables, 201);
     }
-    public function update(Request $request, $id)
+public function update(Request $request, $id)
 {
-    // Validate the input
-    $validated = $request->validate([
-        'capacity' => 'required|integer|min:1',
-        'status' => 'required|string|in:available,occupied,reserved',
-    ]);
-
-    // Find the table by ID
     $table = Table::find($id);
 
     if (!$table) {
         return response()->json(['message' => 'Table not found'], 404);
     }
 
-    // Update the table
-    $table->capacity = $validated['capacity'];
-    $table->status = $validated['status'];
-    $table->save();
+    $user =Auth::user();
+
+    if ($user->role === 'admin') {
+        // Admin can update both capacity and status
+        $validated = $request->validate([
+            'capacity' => 'required|integer|min:1',
+            'status'   => 'required|string|in:available,occupied,reserved',
+        ]);
+
+        $table->update($validated);
+    } elseif ($user->role === 'waiter') {
+        // Waiter can only update status
+        $validated = $request->validate([
+            'status' => 'required|string|in:available,occupied,reserved',
+        ]);
+
+        $table->update(['status' => $validated['status']]);
+    } else {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
 
     return response()->json($table);
 }
+
 public function destroy($id)
 {
     $table = Table::find($id);

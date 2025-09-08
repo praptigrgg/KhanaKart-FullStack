@@ -38,7 +38,7 @@ class OrderController extends Controller
                 }
             }
 
-            $existingOrder->load('items.menuItem');
+            $existingOrder->load(['items.menuItem', 'table']);
 
             return response()->json([
                 'message' => 'Items added to existing order',
@@ -55,15 +55,15 @@ class OrderController extends Controller
             'discount' => $validated['discount'] ?? 0,
         ]);
 
-       foreach ($validated['items'] as $item) {
-    $order->items()->create([
-        'menu_item_id' => $item['menu_item_id'],
-        'quantity' => $item['quantity'],
-        'status' => 'pending',
-    ]);
-}
+        foreach ($validated['items'] as $item) {
+            $order->items()->create([
+                'menu_item_id' => $item['menu_item_id'],
+                'quantity' => $item['quantity'],
+                'status' => 'pending',
+            ]);
+        }
 
-        $order->load('items.menuItem');
+        $order->load(['items.menuItem', 'table']);
 
         return response()->json([
             'message' => 'New order created',
@@ -74,13 +74,15 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $status = $request->query('status');
-        $query = Order::with('items.menuItem');
+
+        $query = Order::with(['items.menuItem', 'table'])->latest();
 
         if ($status) {
             $query->where('status', $status);
         }
 
         $orders = $query->paginate(20);
+
         $orders->getCollection()->transform(function ($order) {
             return $order->append('total_amount');
         });
@@ -88,12 +90,19 @@ class OrderController extends Controller
         return response()->json($orders);
     }
 
-    public function show($id)
-    {
-        $order = Order::with('items.menuItem')->findOrFail($id);
-        return response()->json($order->append('total_amount'));
-    }
+ // In your controller methods, transform the response:
+public function show($id)
+{
+    $order = Order::with(['items.menuItem', 'table'])->findOrFail($id);
 
+    // Transform items to include both menuItem and menu_item for compatibility
+    $order->items->each(function ($item) {
+        $item->menu_item = $item->menuItem;
+        return $item;
+    });
+
+    return response()->json($order->append('total_amount'));
+}
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
@@ -104,92 +113,100 @@ class OrderController extends Controller
         $order->status = $request->status;
         $order->save();
 
+        $order->load(['items.menuItem', 'table']);
+
         return response()->json([
             'message' => 'Order status updated',
             'order' => $order->append('total_amount'),
         ]);
     }
-public function destroy($id)
-{
-    $order = Order::findOrFail($id);
 
-    // Optional: Prevent deletion if order is already paid
-    if ($order->is_paid) {
-        return response()->json(['message' => 'Cannot delete a paid order'], 400);
-    }
-
-    $order->delete();
-
-    return response()->json(['message' => 'Order deleted successfully']);
-}
-
-    public function markPaid(Request $request, $id)
+    public function destroy($id)
     {
         $order = Order::findOrFail($id);
 
         if ($order->is_paid) {
-            return response()->json(['message' => 'Already paid', 'order' => $order->append('total_amount')], 400);
+            return response()->json(['message' => 'Cannot delete a paid order'], 400);
         }
 
-        $order->is_paid = true;
-        $order->paid_at = now();
-        $paymentMethod = $request->input('payment_method', 'cash');
-        $allowedMethods = ['cash', 'card', 'qr'];
+        $order->delete();
 
-        if (!in_array($paymentMethod, $allowedMethods)) {
-            return response()->json(['message' => 'Invalid payment method'], 400);
+        return response()->json(['message' => 'Order deleted successfully']);
+    }
+
+    public function markPaid(Request $request, $id)
+{
+    $order = Order::with(['items.menuItem', 'table'])->findOrFail($id);
+
+    if ($order->is_paid) {
+        return response()->json(['message' => 'Already paid', 'order' => $order->append('total_amount')], 400);
+    }
+
+    $order->is_paid = true;
+    $order->paid_at = now();
+
+    $paymentMethod = $request->input('payment_method', 'cash');
+    $discount = $request->input('discount', 0); // Add this line
+
+    $allowedMethods = ['cash', 'card', 'qr'];
+
+    if (!in_array($paymentMethod, $allowedMethods)) {
+        return response()->json(['message' => 'Invalid payment method'], 400);
+    }
+
+    $order->payment_method = $paymentMethod;
+
+    // Apply discount if provided
+    if ($discount > 0) {
+        $order->discount = $discount;
+    }
+
+    $order->save();
+
+    if ($order->table_id) {
+        $table = Table::find($order->table_id);
+        if ($table) {
+            $table->status = 'available';
+            $table->save();
+        }
+    }
+
+    return response()->json(['message' => 'Marked paid', 'order' => $order->append('total_amount')]);
+}
+
+    public function addItems(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'items' => 'required|array|min:1',
+            'items.*.menu_item_id' => 'required|exists:menu_items,id',
+            'items.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        $order = Order::findOrFail($id);
+
+        if ($order->is_paid) {
+            return response()->json(['message' => 'Cannot add items to a paid order'], 400);
         }
 
-        $order->payment_method = $paymentMethod;
-        $order->save();
-
-        if ($order->table_id) {
-            $table = Table::find($order->table_id);
-            if ($table) {
-                $table->status = 'available';
-                $table->save();
+        foreach ($validated['items'] as $item) {
+            $existingItem = $order->items()->where('menu_item_id', $item['menu_item_id'])->first();
+            if ($existingItem) {
+                $existingItem->quantity += $item['quantity'];
+                $existingItem->save();
+            } else {
+                $order->items()->create([
+                    'menu_item_id' => $item['menu_item_id'],
+                    'quantity' => $item['quantity'],
+                    'status' => 'pending',
+                ]);
             }
         }
 
-        return response()->json(['message' => 'Marked paid', 'order' => $order->append('total_amount')]);
+        $order->load(['items.menuItem', 'table']);
+
+        return response()->json([
+            'message' => 'Items added to order',
+            'order' => $order->append('total_amount'),
+        ]);
     }
-    public function addItems(Request $request, $id)
-{
-    $validated = $request->validate([
-        'items' => 'required|array|min:1',
-        'items.*.menu_item_id' => 'required|exists:menu_items,id',
-        'items.*.quantity' => 'required|integer|min:1',
-    ]);
-
-    $order = Order::findOrFail($id);
-
-    // Only allow adding items if order is not paid yet
-    if ($order->is_paid) {
-        return response()->json(['message' => 'Cannot add items to a paid order'], 400);
-    }
-
-    foreach ($validated['items'] as $item) {
-        $existingItem = $order->items()->where('menu_item_id', $item['menu_item_id'])->first();
-        if ($existingItem) {
-            // Increase quantity if already exists
-            $existingItem->quantity += $item['quantity'];
-            $existingItem->save();
-        } else {
-            // Otherwise create new order item
-            $order->items()->create([
-                'menu_item_id' => $item['menu_item_id'],
-                'quantity' => $item['quantity'],
-                'status' => 'pending', // default status for new items
-            ]);
-        }
-    }
-
-    $order->load('items.menuItem');
-
-    return response()->json([
-        'message' => 'Items added to order',
-        'order' => $order->append('total_amount'),
-    ]);
-}
-
 }

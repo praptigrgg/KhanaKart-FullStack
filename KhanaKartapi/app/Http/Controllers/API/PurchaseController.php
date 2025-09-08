@@ -10,36 +10,38 @@ use App\Http\Controllers\Controller;
 
 class PurchaseController extends Controller
 {
-    public function store(Request $request, $item_id)
+    public function index()
     {
-        $request->validate([
-            'supplier_id' => 'required|exists:suppliers,id',
-            'quantity' => 'required|integer',
-            'price' => 'required|numeric',
-            'type' => 'required|in:increase,decrease', // Stock increase or decrease
-        ]);
-
-        $item = Item::findOrFail($item_id);
-        $supplier = Supplier::findOrFail($request->supplier_id);
-
-        // Handle stock increase or decrease
-        if ($request->type == 'increase') {
-            $item->quantity += $request->quantity;
-        } else {
-            $item->quantity -= $request->quantity;
-        }
-        $item->save();
-
-        // Log the purchase transaction
-        $purchase = Purchase::create([
-            'item_id' => $item->id,
-            'supplier_id' => $supplier->id,
-            'quantity' => $request->quantity,
-            'price' => $request->price,
-            'type' => $request->type,
-        ]);
-
-        return response()->json($purchase, 201);
+        return Purchase::with(['item','supplier'])->get();
     }
+
+    public function store(Request $request)
+{
+    $validated = $request->validate([
+        'item_id' => 'required|exists:items,id',
+        'supplier_id' => 'nullable|exists:suppliers,id',
+        'quantity' => 'required|integer|min:1',
+        'price' => 'nullable|numeric',
+        'type' => 'required|in:increase,decrease',
+    ]);
+
+    $purchase = Purchase::create($validated);
+
+    $item = Item::findOrFail($validated['item_id']);
+
+    if ($validated['type'] === 'increase') {
+        $item->quantity += $validated['quantity']; // ✅ add to stock
+    } elseif ($validated['type'] === 'decrease') {
+        if ($item->quantity < $validated['quantity']) {
+            return response()->json(['error' => 'Not enough stock to decrease'], 400);
+        }
+        $item->quantity -= $validated['quantity']; // ✅ subtract from stock
+    }
+
+    $item->save();
+
+    return response()->json($purchase, 201);
 }
 
+
+}
