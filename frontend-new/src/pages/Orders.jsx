@@ -47,41 +47,49 @@ const Orders = () => {
     setCurrentPage(1); // Reset to first page when filters change
   }, [filteredOrders]);
 
-  const fetchOrders = async () => {
-    try {
-      setLoading(true);
-      let params = {};
+ const fetchOrders = async () => {
+  try {
+    setLoading(true);
+    let params = {};
 
-      if (selectedStatus) {
-        params.status = selectedStatus;
-      }
-
-      if (dateFilter) {
-        try {
-          const date = parseISO(dateFilter);
-          params.start_date = startOfDay(date).toISOString();
-          params.end_date = endOfDay(date).toISOString();
-        } catch (dateError) {
-          console.error('Invalid date format:', dateError);
-          toast.error('Invalid date format');
-          return;
-        }
-      }
-
-      const response = await orderAPI.getAll(params);
-      const data = response.data.data || response.data;
-      const sorted = [...data].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-      setOrders(sorted);
-      setFilteredOrders(sorted);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      toast.error('Failed to fetch orders');
-      setOrders([]);
-      setFilteredOrders([]);
-    } finally {
-      setLoading(false);
+    if (selectedStatus) {
+      params.status = selectedStatus;
     }
-  };
+
+    const response = await orderAPI.getAll(params);
+    let data = response.data.data || response.data;
+
+    // Sort newest first
+    data = [...data].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    // ✅ Apply local date filter
+    if (dateFilter) {
+      try {
+        const selectedDate = parseISO(dateFilter);
+        const start = startOfDay(selectedDate);
+        const end = endOfDay(selectedDate);
+
+        data = data.filter(order => {
+          const orderDate = new Date(order.created_at);
+          return orderDate >= start && orderDate <= end;
+        });
+      } catch (dateError) {
+        console.error('Invalid date format:', dateError);
+        toast.error('Invalid date format');
+      }
+    }
+
+    setOrders(data);
+    setFilteredOrders(data);
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    toast.error('Failed to fetch orders');
+    setOrders([]);
+    setFilteredOrders([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const applyFilters = () => {
     let result = [...orders];
