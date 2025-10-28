@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import AdminDashboard from '../components/Dashboard/AdminDashboard';
 import WaiterDashboard from '../components/Dashboard/WaiterDashboard';
 import KitchenDashboard from '../components/Dashboard/KitchenDashboard';
+import CashierDashboard from '../components/Dashboard/CashierDashboard';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -15,6 +16,8 @@ const Dashboard = () => {
         return <WaiterDashboard />;
       case 'kitchen':
         return <KitchenDashboard />;
+      case 'cashier':
+        return <CashierDashboard/>;
       default:
         return <div>Unauthorized access</div>;
     }

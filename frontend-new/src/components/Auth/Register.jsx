@@ -6,7 +6,7 @@ import { ChefHat, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Register = () => {
-  const { register, user } = useAuth();
+  const { register, user, loading: authLoading } = useAuth(); // 👈 use loading flag from AuthContext
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -32,6 +32,15 @@ const Register = () => {
     }
   };
 
+  // 🧠 Prevent redirect until auth state has fully loaded
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-orange-50">
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    );
+  }
+
   if (user) {
     return <Navigate to="/dashboard" replace />;
   }
@@ -47,6 +56,11 @@ const Register = () => {
     setLoading(true);
     const success = await register(formData);
     setLoading(false);
+
+    // Optionally redirect or clear form here if registration does not auto-login
+    if (success) {
+      toast.success('Registration successful!');
+    }
   };
 
   const handleChange = (e) => {

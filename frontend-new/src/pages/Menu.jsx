@@ -9,7 +9,7 @@ const Menu = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showModal, setShowModal] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -50,7 +50,7 @@ const Menu = () => {
         toast.success('Menu item created successfully');
       }
 
-      setShowModal(false);
+      setShowForm(false);
       setEditingItem(null);
       setFormData({ name: '', price: '', description: '', category: '', is_available: true });
       fetchMenuItems();
@@ -68,7 +68,7 @@ const Menu = () => {
       category: item.category || '',
       is_available: item.is_available,
     });
-    setShowModal(true);
+    setShowForm(true);
   };
 
   const handleDelete = async (id) => {
@@ -98,6 +98,7 @@ const Menu = () => {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Menu Management</h1>
@@ -105,14 +106,102 @@ const Menu = () => {
         </div>
         {user?.role === 'admin' && (
           <button
-            onClick={() => setShowModal(true)}
+            onClick={() => {
+              setShowForm(!showForm);
+              setEditingItem(null);
+              setFormData({ name: '', price: '', description: '', category: '', is_available: true });
+            }}
             className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors flex items-center space-x-2"
           >
             <Plus className="w-5 h-5" />
-            <span>Add Item</span>
+            <span>{showForm ? 'Close Form' : 'Add Item'}</span>
           </button>
         )}
       </div>
+
+      {/* Inline Form */}
+      {showForm && (
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+          <h2 className="text-xl font-semibold mb-4">
+            {editingItem ? 'Edit Menu Item' : 'Add Menu Item'}
+          </h2>
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="col-span-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                required
+              />
+            </div>
+            <div className="col-span-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.price}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                required
+              />
+            </div>
+            <div className="col-span-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <input
+                type="text"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+            <div className="col-span-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Availability</label>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="is_available"
+                  checked={formData.is_available}
+                  onChange={(e) => setFormData({ ...formData, is_available: e.target.checked })}
+                  className="mr-2"
+                />
+                <label htmlFor="is_available" className="text-sm font-medium text-gray-700">
+                  Available
+                </label>
+              </div>
+            </div>
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                rows={3}
+              />
+            </div>
+            <div className="col-span-2 flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingItem(null);
+                  setFormData({ name: '', price: '', description: '', category: '', is_available: true });
+                }}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
+              >
+                {editingItem ? 'Update' : 'Create'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Search */}
       <div className="relative">
@@ -147,11 +236,11 @@ const Menu = () => {
                   </span>
                 </div>
               </div>
-              
+
               {item.description && (
                 <p className="text-gray-600 text-sm mb-3">{item.description}</p>
               )}
-              
+
               <div className="flex items-center justify-between">
                 <span className="text-2xl font-bold text-orange-600">Rs.{item.price}</span>
                 {user?.role === 'admin' && (
@@ -175,89 +264,6 @@ const Menu = () => {
           </div>
         ))}
       </div>
-
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4">
-              {editingItem ? 'Edit Menu Item' : 'Add Menu Item'}
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                <input
-                  type="text"
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  rows={3}
-                />
-              </div>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="is_available"
-                  checked={formData.is_available}
-                  onChange={(e) => setFormData({ ...formData, is_available: e.target.checked })}
-                  className="mr-2"
-                />
-                <label htmlFor="is_available" className="text-sm font-medium text-gray-700">
-                  Available
-                </label>
-              </div>
-              <div className="flex justify-end space-x-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowModal(false);
-                    setEditingItem(null);
-                    setFormData({ name: '', price: '', description: '', category: '', is_available: true });
-                  }}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
-                >
-                  {editingItem ? 'Update' : 'Create'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

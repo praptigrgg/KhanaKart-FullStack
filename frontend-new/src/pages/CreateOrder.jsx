@@ -245,7 +245,7 @@ const CreateOrder = () => {
                       </span>
                     )}
                   </div>
-                  <span className="text-lg font-bold text-orange-600">${item.price}</span>
+                  <span className="text-lg font-bold text-orange-600">Rs.{item.price}</span>
                 </div>
                 {item.description && (
                   <p className="text-sm text-gray-600 mb-3">{item.description}</p>
@@ -285,7 +285,7 @@ const CreateOrder = () => {
                   <div key={item.menu_item_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-900">{item.menuItem.name}</h4>
-                      <p className="text-sm text-gray-600">${item.menuItem.price} each</p>
+                      <p className="text-sm text-gray-600">Rs.{item.menuItem.price} each</p>
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
@@ -330,7 +330,7 @@ const CreateOrder = () => {
             <div className="border-t pt-4">
               <div className="flex justify-between items-center text-lg font-semibold">
                 <span>Total:</span>
-                <span className="text-orange-600">${calculateTotal().toFixed(2)}</span>
+                <span className="text-orange-600">Rs.{calculateTotal().toFixed(2)}</span>
               </div>
             </div>
 

@@ -294,7 +294,7 @@ const Invoices = () => {
                       <button
                         type="button"
                         onClick={() => viewInvoice(invoice.id)}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-orange-600 hover:text-orange-500"
                         title="View Invoice"
                       >
                         <Eye className="w-4 h-4" />
@@ -410,7 +410,7 @@ const Invoices = () => {
                 <button
                   type="button"
                   onClick={() => downloadInvoice(selectedInvoice)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-500 transition-colors"
                 >
                   Print / Save PDF
                 </button>

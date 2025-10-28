@@ -55,6 +55,17 @@ const Sidebar = () => {
         ...baseItems,
         { path: '/orders', icon: ShoppingCart, label: 'Orders' },
         { path: '/kot', icon: FileText, label: 'KOT' },
+         { path: '/inventory', icon: Package, label: 'Inventory' },
+      ];
+    }
+
+    if (user?.role === 'cashier') {
+      return [
+        ...baseItems,
+        { path: '/tables', icon: TableProperties, label: 'Tables' },
+        { path: '/orders', icon: ShoppingCart, label: 'Orders' },
+        { path: '/invoices', icon: Receipt, label: 'Invoices' },
+   
       ];
     }
 

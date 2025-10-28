@@ -80,7 +80,7 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Daily Revenue"
-          value={`$${data.total_revenue?.toFixed(2) || '0.00'}`}
+          value={`Rs.${data.total_revenue?.toFixed(2) || '0.00'}`}
           icon={<DollarSign className="w-6 h-6 text-white" />}
           color="bg-green-500"
           subtitle={`${data.total_orders || 0} orders`}
@@ -113,7 +113,7 @@ const AdminDashboard = () => {
             <div className="bg-green-100 p-3 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
               <TrendingUp className="w-8 h-8 text-green-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">${data.monthly_revenue?.toFixed(2) || '0.00'}</p>
+            <p className="text-2xl font-bold text-gray-900">Rs.{data.monthly_revenue?.toFixed(2) || '0.00'}</p>
             <p className="text-sm text-gray-600">Monthly Revenue</p>
           </div>
           <div className="text-center">
@@ -149,7 +149,7 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">{item.name}</p>
-                    <p className="text-sm text-gray-600">${item.price}</p>
+                    <p className="text-sm text-gray-600">Rs.{item.price}</p>
                   </div>
                 </div>
                 <div className="text-right">

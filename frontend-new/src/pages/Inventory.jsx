@@ -265,7 +265,7 @@ const Inventory = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.unit}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {item.price ? `$${item.price}` : 'N/A'}
+                        {item.price ? `Rs.${item.price}` : 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                         <button
@@ -335,7 +335,7 @@ const Inventory = () => {
                   </div>
                 </div>
                 <div className="space-y-2 text-sm text-gray-600">
-                  <p><strong>Contact:</strong> {supplier.contact}</p>
+                  <p><strong>Contact:</strong> {supplier.contact_info}</p>
                   {supplier.email && <p><strong>Email:</strong> {supplier.email}</p>}
                   {supplier.address && <p><strong>Address:</strong> {supplier.address}</p>}
                 </div>

@@ -4,11 +4,20 @@ import { useAuth } from '../../context/AuthContext';
 import { ChefHat, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
-  const { login, user } = useAuth();
+  const { login, user, loading: authLoading } = useAuth(); // 👈 use loading from AuthContext
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Wait for auth context to finish checking localStorage before deciding redirect
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-orange-50">
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    );
+  }
 
   if (user) {
     return <Navigate to="/dashboard" replace />;
@@ -17,12 +26,12 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     const success = await login(email, password);
     if (success) {
-      // Navigation will be handled by the auth context
+      // Navigation handled by AuthContext redirect logic or route guards
     }
-    
+
     setLoading(false);
   };
 
@@ -88,16 +97,14 @@ const Login = () => {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        {/* <div className="mt-6 text-center">
           <p className="text-gray-600">
             Don't have an account?{' '}
             <Link to="/register" className="text-orange-600 hover:text-orange-700 font-medium">
               Sign up
             </Link>
           </p>
-        </div>
-
-       
+        </div> */}
       </div>
     </div>
   );

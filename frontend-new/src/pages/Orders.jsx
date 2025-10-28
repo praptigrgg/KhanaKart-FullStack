@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { orderAPI, orderItemAPI } from '../services/api';
-import { Eye, X, DollarSign } from 'lucide-react';
+import { Eye, X, DollarSign, Calendar, Filter } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { format } from 'date-fns';
+import { format, subDays, startOfDay, endOfDay, parseISO } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useRef } from 'react';
@@ -10,10 +10,13 @@ import { useReactToPrint } from 'react-to-print';
 
 const Orders = () => {
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [operationLoading, setOperationLoading] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(searchParams.get('status') || '');
+  const [dateFilter, setDateFilter] = useState(searchParams.get('date') || '');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -21,39 +24,120 @@ const Orders = () => {
   const [paymentDiscount, setPaymentDiscount] = useState(0);
   const [showInvoice, setShowInvoice] = useState(false);
   const [invoiceOrder, setInvoiceOrder] = useState(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [tableFilter, setTableFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+
+  // Pagination calculations
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentOrders = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
 
   useEffect(() => {
     fetchOrders();
-  }, [selectedStatus]);
+  }, [selectedStatus, dateFilter]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [tableFilter, orders]);
+
+  useEffect(() => {
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [filteredOrders]);
 
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await orderAPI.getAll(selectedStatus);
+      let params = {};
+
+      if (selectedStatus) {
+        params.status = selectedStatus;
+      }
+
+      if (dateFilter) {
+        try {
+          const date = parseISO(dateFilter);
+          params.start_date = startOfDay(date).toISOString();
+          params.end_date = endOfDay(date).toISOString();
+        } catch (dateError) {
+          console.error('Invalid date format:', dateError);
+          toast.error('Invalid date format');
+          return;
+        }
+      }
+
+      const response = await orderAPI.getAll(params);
       const data = response.data.data || response.data;
       const sorted = [...data].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
       setOrders(sorted);
+      setFilteredOrders(sorted);
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast.error('Failed to fetch orders');
+      setOrders([]);
+      setFilteredOrders([]);
     } finally {
       setLoading(false);
     }
   };
 
+  const applyFilters = () => {
+    let result = [...orders];
+
+    if (tableFilter.trim() !== '') {
+      const searchTerm = tableFilter.trim().toLowerCase();
+      result = result.filter(order => {
+        const tableNumber = order.table?.table_number?.toString().toLowerCase();
+        return tableNumber?.includes(searchTerm);
+      });
+    }
+
+    setFilteredOrders(result);
+  };
+
+  const handleStatusChange = (status) => {
+    setSelectedStatus(status);
+    const params = new URLSearchParams();
+    if (status) params.set('status', status);
+    if (dateFilter) params.set('date', dateFilter);
+    setSearchParams(params);
+  };
+
+  const handleDateChange = (date) => {
+    setDateFilter(date);
+    const params = new URLSearchParams();
+    if (selectedStatus) params.set('status', selectedStatus);
+    if (date) params.set('date', date);
+    setSearchParams(params);
+    setShowDatePicker(false);
+  };
+
+  const clearDateFilter = () => {
+    setDateFilter('');
+    const params = new URLSearchParams();
+    if (selectedStatus) params.set('status', selectedStatus);
+    setSearchParams(params);
+  };
+
   const updateOrderStatus = async (orderId, status) => {
     try {
+      setOperationLoading(true);
       await orderAPI.updateStatus(orderId, status);
       toast.success('Order status updated');
       fetchOrders();
     } catch (error) {
       console.error('Error updating order status:', error);
       toast.error('Failed to update order status');
+    } finally {
+      setOperationLoading(false);
     }
   };
 
   const updateItemStatus = async (itemId, status) => {
     try {
+      setOperationLoading(true);
       await orderItemAPI.updateStatus(itemId, status);
       toast.success('Item status updated');
       fetchOrders();
@@ -64,11 +148,14 @@ const Orders = () => {
     } catch (error) {
       console.error('Error updating item status:', error);
       toast.error('Failed to update item status');
+    } finally {
+      setOperationLoading(false);
     }
   };
 
   const markPaid = async (orderId, paymentMethod) => {
     try {
+      setOperationLoading(true);
       const finalDiscount = paymentDiscount || 0;
       await orderAPI.markPaid(orderId, paymentMethod, finalDiscount);
       toast.success('Payment successful');
@@ -86,9 +173,10 @@ const Orders = () => {
     } catch (error) {
       console.error('Error marking as paid:', error);
       toast.error('Payment failed');
+    } finally {
+      setOperationLoading(false);
     }
   };
-
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -128,9 +216,7 @@ const Orders = () => {
 
   // Helper function to safely get menu item data
   const getMenuItemData = (item) => {
-    // Try multiple possible structures
     const menuItem = item.menu_item || item.menuItem || item.MenuItem;
-
     return {
       name: menuItem?.name || 'Unknown Item',
       price: parseFloat(menuItem?.price) || 0,
@@ -150,12 +236,13 @@ const Orders = () => {
     const discountAmount = (originalAmount * discount) / 100;
     return originalAmount - discountAmount;
   };
+
   // Reference for invoice content
   const invoiceRef = useRef();
 
   const handlePrint = useReactToPrint({
- contentRef: invoiceRef,
-     documentTitle: `Invoice-${invoiceOrder?.id}`,
+    contentRef: invoiceRef,
+    documentTitle: `Invoice-${invoiceOrder?.id}`,
   });
 
   if (loading) {
@@ -179,9 +266,9 @@ const Orders = () => {
       </div>
 
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 mb-4">
           <button
-            onClick={() => setSelectedStatus('')}
+            onClick={() => handleStatusChange('')}
             className={`px-4 py-2 rounded-lg transition-colors ${selectedStatus === '' ? 'bg-orange-600 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
           >
             All Orders
@@ -189,12 +276,75 @@ const Orders = () => {
           {['pending', 'preparing', 'ready', 'served', 'completed'].map(status => (
             <button
               key={status}
-              onClick={() => setSelectedStatus(status)}
+              onClick={() => handleStatusChange(status)}
               className={`px-4 py-2 rounded-lg capitalize transition-colors ${selectedStatus === status ? 'bg-orange-600 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
             >
               {status}
             </button>
           ))}
+        </div>
+
+        {/* Date Filter */}
+        <div className="flex items-center gap-2 mb-4">
+          <div className="relative">
+            <button
+              onClick={() => setShowDatePicker(!showDatePicker)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${dateFilter ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 hover:bg-gray-200'}`}
+            >
+              <Calendar className="w-4 h-4" />
+              {dateFilter ? format(parseISO(dateFilter), 'MMM dd, yyyy') : 'Filter by date'}
+            </button>
+
+            {showDatePicker && (
+              <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => handleDateChange(format(new Date(), 'yyyy-MM-dd'))}
+                    className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded"
+                  >
+                    Today
+                  </button>
+                  <button
+                    onClick={() => handleDateChange(format(subDays(new Date(), 1), 'yyyy-MM-dd'))}
+                    className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded"
+                  >
+                    Yesterday
+                  </button>
+                </div>
+                <input
+                  type="date"
+                  value={dateFilter}
+                  onChange={(e) => handleDateChange(e.target.value)}
+                  className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+            )}
+          </div>
+
+          {dateFilter && (
+            <button
+              onClick={clearDateFilter}
+              className="px-3 py-2 text-sm text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+            >
+              Clear date
+            </button>
+          )}
+        </div>
+
+        {/* Table Filter */}
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm flex flex-wrap gap-4 items-center">
+          <div className="flex items-center space-x-2">
+            <Filter className="w-4 h-4 text-gray-600" />
+            <h3 className="font-medium text-gray-700">Filters</h3>
+          </div>
+
+          <input
+            type="text"
+            placeholder="Filter by table..."
+            value={tableFilter}
+            onChange={(e) => setTableFilter(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+          />
         </div>
       </div>
 
@@ -215,16 +365,18 @@ const Orders = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {orders.length === 0 ? (
+              {currentOrders.length === 0 ? (
                 <tr>
                   <td colSpan="9" className="px-6 py-8 text-center text-gray-500">
                     No orders found
                   </td>
                 </tr>
               ) : (
-                orders.map((order, index) => (
+                currentOrders.map((order, index) => (
                   <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{index + 1}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {indexOfFirstItem + index + 1}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{order.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       Table {order.table?.table_number || 'N/A'}
@@ -254,6 +406,7 @@ const Orders = () => {
                           onClick={() => viewOrder(order.id)}
                           className="text-blue-600 hover:text-blue-900 transition-colors"
                           title="View Order Details"
+                          disabled={operationLoading}
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -265,6 +418,7 @@ const Orders = () => {
                             }}
                             className="text-green-600 hover:text-green-900 transition-colors"
                             title="Proceed Payment"
+                            disabled={operationLoading}
                           >
                             <DollarSign className="w-4 h-4" />
                           </button>
@@ -277,6 +431,34 @@ const Orders = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {filteredOrders.length > itemsPerPage && (
+          <div className="flex justify-between items-center mt-4 px-6 py-3 bg-gray-50">
+            <div className="text-sm text-gray-700">
+              Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredOrders.length)} of {filteredOrders.length} orders
+            </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Previous
+              </button>
+              <span className="px-3 py-1 text-sm text-gray-700">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Order Details Modal */}
@@ -289,6 +471,7 @@ const Orders = () => {
                 <button
                   onClick={() => setShowModal(false)}
                   className="text-gray-500 hover:text-gray-700 transition-colors"
+                  onKeyDown={(e) => e.key === 'Escape' && setShowModal(false)}
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -356,7 +539,8 @@ const Orders = () => {
                                   {canUpdateStatus(item.status, 'preparing') && (
                                     <button
                                       onClick={() => updateItemStatus(item.id, 'preparing')}
-                                      className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
+                                      className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200 transition-colors disabled:opacity-50"
+                                      disabled={operationLoading}
                                     >
                                       Start Preparing
                                     </button>
@@ -364,7 +548,8 @@ const Orders = () => {
                                   {canUpdateStatus(item.status, 'ready') && (
                                     <button
                                       onClick={() => updateItemStatus(item.id, 'ready')}
-                                      className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded hover:bg-green-200 transition-colors"
+                                      className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded hover:bg-green-200 transition-colors disabled:opacity-50"
+                                      disabled={operationLoading}
                                     >
                                       Mark Ready
                                     </button>
@@ -411,7 +596,8 @@ const Orders = () => {
                     {canUpdateStatus(selectedOrder.status, 'preparing') && (
                       <button
                         onClick={() => updateOrderStatus(selectedOrder.id, 'preparing')}
-                        className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-lg text-sm font-medium transition-colors"
+                        className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                        disabled={operationLoading}
                       >
                         Start Preparing
                       </button>
@@ -419,7 +605,8 @@ const Orders = () => {
                     {canUpdateStatus(selectedOrder.status, 'ready') && (
                       <button
                         onClick={() => updateOrderStatus(selectedOrder.id, 'ready')}
-                        className="px-4 py-2 bg-green-100 hover:bg-green-200 text-green-800 rounded-lg text-sm font-medium transition-colors"
+                        className="px-4 py-2 bg-green-100 hover:bg-green-200 text-green-800 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                        disabled={operationLoading}
                       >
                         Mark as Ready
                       </button>
@@ -427,7 +614,8 @@ const Orders = () => {
                     {canUpdateStatus(selectedOrder.status, 'served') && (
                       <button
                         onClick={() => updateOrderStatus(selectedOrder.id, 'served')}
-                        className="px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-lg text-sm font-medium transition-colors"
+                        className="px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                        disabled={operationLoading}
                       >
                         Mark as Served
                       </button>
@@ -435,7 +623,8 @@ const Orders = () => {
                     {canUpdateStatus(selectedOrder.status, 'completed') && (
                       <button
                         onClick={() => updateOrderStatus(selectedOrder.id, 'completed')}
-                        className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-sm font-medium transition-colors"
+                        className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                        disabled={operationLoading}
                       >
                         Mark as Completed
                       </button>
@@ -443,7 +632,8 @@ const Orders = () => {
                     {canUpdateStatus(selectedOrder.status, 'cancelled') && (
                       <button
                         onClick={() => updateOrderStatus(selectedOrder.id, 'cancelled')}
-                        className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 rounded-lg text-sm font-medium transition-colors"
+                        className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                        disabled={operationLoading}
                       >
                         Cancel Order
                       </button>
@@ -468,6 +658,7 @@ const Orders = () => {
                   setPaymentDiscount(0);
                 }}
                 className="text-gray-500 hover:text-gray-700 transition-colors"
+                onKeyDown={(e) => e.key === 'Escape' && setShowPaymentModal(false)}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -541,13 +732,15 @@ const Orders = () => {
             <div className="space-y-3">
               <button
                 onClick={() => markPaid(selectedOrder.id, 'cash')}
-                className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50"
+                disabled={operationLoading}
               >
-                Pay with Cash
+                {operationLoading ? 'Processing...' : 'Pay with Cash'}
               </button>
               <button
                 onClick={() => setShowQRCode(true)}
-                className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50"
+                disabled={operationLoading}
               >
                 Pay with QR Code
               </button>
@@ -569,6 +762,7 @@ const Orders = () => {
                   setPaymentDiscount(0);
                 }}
                 className="text-gray-500 hover:text-gray-700 transition-colors"
+                onKeyDown={(e) => e.key === 'Escape' && setShowQRCode(false)}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -584,12 +778,24 @@ const Orders = () => {
             {/* QR Code Placeholder */}
             <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 mb-4">
               <div className="w-48 h-48 mx-auto bg-white border border-gray-200 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-32 h-32 bg-black mx-auto mb-2 rounded" style={{
-                    background: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='10' height='10' fill='black'/%3E%3Crect x='20' y='0' width='10' height='10' fill='black'/%3E%3Crect x='40' y='0' width='10' height='10' fill='black'/%3E%3Crect x='0' y='20' width='10' height='10' fill='black'/%3E%3Crect x='20' y='20' width='10' height='10' fill='white'/%3E%3Crect x='40' y='20' width='10' height='10' fill='black'/%3E%3C/svg%3E")`,
-                    backgroundSize: 'cover'
-                  }}></div>
-                  <p className="text-xs text-gray-500">QR Code</p>
+                <div className="text-center w-full h-full">
+                  <img
+                    src="/qrcode.jpg"
+                    alt="QR Code"
+                    className="w-full h-full object-cover rounded-lg"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'block';
+                    }}
+                  />
+                  <div className="hidden text-gray-500 text-sm">
+                    <div className="grid grid-cols-4 gap-1 w-full h-full">
+                      {Array.from({ length: 16 }).map((_, i) => (
+                        <div key={i} className={`bg-${i % 4 === 0 ? 'black' : 'gray-200'} rounded`}></div>
+                      ))}
+                    </div>
+                    <p className="mt-2">QR Code Placeholder</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -604,9 +810,10 @@ const Orders = () => {
                   markPaid(selectedOrder.id, 'qr');
                   setShowQRCode(false);
                 }}
-                className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50"
+                disabled={operationLoading}
               >
-                Payment Completed
+                {operationLoading ? 'Processing...' : 'Payment Completed'}
               </button>
               <button
                 onClick={() => setShowQRCode(false)}
@@ -618,6 +825,8 @@ const Orders = () => {
           </div>
         </div>
       )}
+
+      {/* Invoice Modal */}
       {showInvoice && invoiceOrder && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full max-h-[95vh] overflow-y-auto">
@@ -626,6 +835,7 @@ const Orders = () => {
               <button
                 onClick={() => setShowInvoice(false)}
                 className="text-gray-500 hover:text-gray-700 transition-colors"
+                onKeyDown={(e) => e.key === 'Escape' && setShowInvoice(false)}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -635,8 +845,6 @@ const Orders = () => {
             <div ref={invoiceRef} className="p-6 border rounded-lg bg-white">
               {/* Header */}
               <div className="text-center mb-6">
-                {/* If you have a logo, place it here */}
-                {/* <img src="/logo.png" alt="Logo" className="h-16 mx-auto mb-2" /> */}
                 <h1 className="text-2xl font-bold text-gray-900">🍽️ KhanaKart (...Restaurant)</h1>
                 <p className="text-sm text-gray-600">Pokhara, Nepal</p>
                 <p className="text-sm text-gray-600">Phone: +977 123456789</p>
@@ -651,9 +859,8 @@ const Orders = () => {
                   <p><span className="font-medium">Table:</span> {invoiceOrder.table?.table_number || 'N/A'}</p>
                 </div>
                 <div className="text-right">
-                 <p><strong>Date:</strong> {format(new Date(), 'MMM dd, yyyy')}</p>
-<p><strong>Time:</strong> {format(new Date(), 'HH:mm')}</p>
-
+                  <p><strong>Date:</strong> {format(new Date(), 'MMM dd, yyyy')}</p>
+                  <p><strong>Time:</strong> {format(new Date(), 'HH:mm')}</p>
                 </div>
               </div>
 
@@ -714,13 +921,13 @@ const Orders = () => {
             <div className="flex justify-end gap-3 mt-4">
               <button
                 onClick={handlePrint}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-800 transition-colors"
               >
                 Print / Save PDF
               </button>
               <button
                 onClick={() => setShowInvoice(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
               >
                 Close
               </button>
@@ -728,7 +935,6 @@ const Orders = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };
