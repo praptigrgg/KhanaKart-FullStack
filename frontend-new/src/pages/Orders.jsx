@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
 import { orderAPI, orderItemAPI } from '../services/api';
 import { Eye, X, DollarSign, Calendar, Filter } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -35,6 +37,7 @@ const Orders = () => {
   const currentOrders = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
 
+
   useEffect(() => {
     fetchOrders();
   }, [selectedStatus, dateFilter]);
@@ -47,49 +50,49 @@ const Orders = () => {
     setCurrentPage(1); // Reset to first page when filters change
   }, [filteredOrders]);
 
- const fetchOrders = async () => {
-  try {
-    setLoading(true);
-    let params = {};
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      let params = {};
 
-    if (selectedStatus) {
-      params.status = selectedStatus;
-    }
-
-    const response = await orderAPI.getAll(params);
-    let data = response.data.data || response.data;
-
-    // Sort newest first
-    data = [...data].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-    // ✅ Apply local date filter
-    if (dateFilter) {
-      try {
-        const selectedDate = parseISO(dateFilter);
-        const start = startOfDay(selectedDate);
-        const end = endOfDay(selectedDate);
-
-        data = data.filter(order => {
-          const orderDate = new Date(order.created_at);
-          return orderDate >= start && orderDate <= end;
-        });
-      } catch (dateError) {
-        console.error('Invalid date format:', dateError);
-        toast.error('Invalid date format');
+      if (selectedStatus) {
+        params.status = selectedStatus;
       }
-    }
 
-    setOrders(data);
-    setFilteredOrders(data);
-  } catch (error) {
-    console.error('Error fetching orders:', error);
-    toast.error('Failed to fetch orders');
-    setOrders([]);
-    setFilteredOrders([]);
-  } finally {
-    setLoading(false);
-  }
-};
+      const response = await orderAPI.getAll(params);
+      let data = response.data.data || response.data;
+
+      // Sort newest first
+      data = [...data].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      // ✅ Apply local date filter
+      if (dateFilter) {
+        try {
+          const selectedDate = parseISO(dateFilter);
+          const start = startOfDay(selectedDate);
+          const end = endOfDay(selectedDate);
+
+          data = data.filter(order => {
+            const orderDate = new Date(order.created_at);
+            return orderDate >= start && orderDate <= end;
+          });
+        } catch (dateError) {
+          console.error('Invalid date format:', dateError);
+          toast.error('Invalid date format');
+        }
+      }
+
+      setOrders(data);
+      setFilteredOrders(data);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      toast.error('Failed to fetch orders');
+      setOrders([]);
+      setFilteredOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const applyFilters = () => {
     let result = [...orders];
@@ -129,24 +132,32 @@ const Orders = () => {
     setSearchParams(params);
   };
 
-  const updateOrderStatus = async (orderId, status) => {
-    try {
-      setOperationLoading(true);
-      await orderAPI.updateStatus(orderId, status);
-      toast.success('Order status updated');
-      fetchOrders();
-    } catch (error) {
-      console.error('Error updating order status:', error);
-      toast.error('Failed to update order status');
-    } finally {
-      setOperationLoading(false);
+const updateOrderStatus = async (orderId, newStatus) => {
+  try {
+    setOperationLoading(true);
+    await orderAPI.updateStatus(orderId, newStatus);
+    toast.success('Order status updated');
+
+    if (selectedOrder && selectedOrder.id === orderId) {
+      const response = await orderAPI.getById(orderId);
+      setSelectedOrder(response.data); // refresh modal data
     }
-  };
+
+    fetchOrders();
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    toast.error('Failed to update order status');
+  } finally {
+    setOperationLoading(false);
+  }
+};
+
+
 
   const updateItemStatus = async (itemId, status) => {
     try {
       setOperationLoading(true);
-      await orderItemAPI.updateStatus(itemId, status);
+      await orderItemAPI.updateStatus(itemId, status); // ✅ use service
       toast.success('Item status updated');
       fetchOrders();
       if (selectedOrder) {
@@ -154,12 +165,26 @@ const Orders = () => {
         setSelectedOrder(response.data);
       }
     } catch (error) {
-      console.error('Error updating item status:', error);
+      console.error('Error updating item status:', error.response?.data || error);
       toast.error('Failed to update item status');
     } finally {
       setOperationLoading(false);
     }
   };
+  const cancelOrder = async (orderId) => {
+    try {
+      setOperationLoading(true);
+      await orderAPI.updateStatus(orderId, 'cancelled'); // ✅ use API method
+      toast.success('Order cancelled successfully');
+      fetchOrders(); // refresh orders list
+    } catch (error) {
+      console.error('Error cancelling order:', error.response?.data || error);
+      toast.error('Failed to cancel order');
+    } finally {
+      setOperationLoading(false);
+    }
+  };
+
 
   const markPaid = async (orderId, paymentMethod) => {
     try {
@@ -597,7 +622,8 @@ const Orders = () => {
               </div>
 
               {/* Status Update Actions */}
-              {user?.role === 'kitchen' && (
+              {['kitchen', 'waiter', 'admin'].includes(user?.role) && (
+
                 <div className="border-t border-gray-200 pt-4">
                   <h4 className="font-medium text-gray-900 mb-3">Update Order Status:</h4>
                   <div className="flex flex-wrap gap-2">
@@ -631,21 +657,22 @@ const Orders = () => {
                     {canUpdateStatus(selectedOrder.status, 'completed') && (
                       <button
                         onClick={() => updateOrderStatus(selectedOrder.id, 'completed')}
-                        className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                        className="px-4 py-2 bg-green-100 hover:bg-green-200 text-green-800 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                         disabled={operationLoading}
                       >
-                        Mark as Completed
+                        Completed
                       </button>
                     )}
                     {canUpdateStatus(selectedOrder.status, 'cancelled') && (
                       <button
-                        onClick={() => updateOrderStatus(selectedOrder.id, 'cancelled')}
-                        className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
-                        disabled={operationLoading}
+                        disabled={operationLoading || selectedOrder.status === 'cancelled'}
+                        onClick={() => cancelOrder(selectedOrder.id)}
+                        className="btn btn-danger"
                       >
                         Cancel Order
                       </button>
                     )}
+
                   </div>
                 </div>
               )}

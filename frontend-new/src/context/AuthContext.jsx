@@ -29,23 +29,22 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    try {
-      const response = await authAPI.login(email, password);
-      const { token: newToken, user: newUser } = response.data;
-      
-      setToken(newToken);
-      setUser(newUser);
-      
-      localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(newUser));
-      
-      toast.success('Login successful!');
-      return true;
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Login failed');
-      return false;
-    }
-  };
+  try {
+    const response = await authAPI.login(email, password);
+    const { token: newToken, user: newUser } = response.data;
+
+    setToken(newToken);
+    setUser(newUser);
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('user', JSON.stringify(newUser));
+
+    // remove toast here
+    return true;
+  } catch (error) {
+    return false; // just return false
+  }
+};
+
 
   const register = async (data) => {
     try {

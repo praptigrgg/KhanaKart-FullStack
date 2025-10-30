@@ -389,7 +389,7 @@ const Inventory = () => {
                         {purchase.type === 'increase' ? '+' : '-'}{purchase.quantity}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {purchase.price ? `$${purchase.price}` : 'N/A'}
+                        {purchase.price ? `Rs.${purchase.price}` : 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {purchase.supplier?.name || 'N/A'}

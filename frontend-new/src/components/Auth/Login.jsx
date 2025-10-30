@@ -1,16 +1,57 @@
-import React, { useState } from 'react';
-import { Navigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ChefHat, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
-  const { login, user, loading: authLoading } = useAuth(); // 👈 use loading from AuthContext
+  const { login, user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  // Wait for auth context to finish checking localStorage before deciding redirect
+  const navigate = useNavigate();
+
+  // Redirect on successful login
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, navigate]);
+
+  // Auto-hide error after 3 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(''), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  const handleSubmit = async (e) => {
+    if (e && e.preventDefault) e.preventDefault(); // prevent page reload
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const successLogin = await login(email, password);
+      if (successLogin) {
+        setSuccess('Login successful! Redirecting...');
+      } else {
+        setError('Invalid email or password.');
+      }
+    } catch (err) {
+      setError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-orange-50">
@@ -22,18 +63,6 @@ const Login = () => {
   if (user) {
     return <Navigate to="/dashboard" replace />;
   }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const success = await login(email, password);
-    if (success) {
-      // Navigation handled by AuthContext redirect logic or route guards
-    }
-
-    setLoading(false);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center p-4">
@@ -48,7 +77,10 @@ const Login = () => {
           <p className="text-gray-600 mt-2">Sign in to your restaurant account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+          {error && <p className="text-red-600 text-sm text-center">{error}</p>}
+          {success && <p className="text-green-600 text-sm text-center">{success}</p>}
+
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
               Email Address
@@ -89,7 +121,7 @@ const Login = () => {
           </div>
 
           <button
-            type="submit"
+            type="submit" // safe type
             disabled={loading}
             className="w-full bg-orange-600 text-white py-3 px-4 rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -97,14 +129,15 @@ const Login = () => {
           </button>
         </form>
 
-        {/* <div className="mt-6 text-center">
-          <p className="text-gray-600">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-orange-600 hover:text-orange-700 font-medium">
-              Sign up
-            </Link>
-          </p>
-        </div> */}
+        <div className="mt-6 text-center">
+          <Link to="/forgot-password" className="text-orange-600 hover:text-orange-700 font-medium">
+            Forgot your password?
+          </Link>
+        </div>
+
+        <footer className="mt-8 text-center text-gray-500 text-sm">
+          © {new Date().getFullYear()} KhanaKart.🍽️ All rights reserved.
+        </footer>
       </div>
     </div>
   );
