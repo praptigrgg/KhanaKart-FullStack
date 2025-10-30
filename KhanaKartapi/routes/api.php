@@ -1,7 +1,5 @@
 <?php
 
-use App\Http\Controllers\API\Auth\ForgotPasswordController;
-use App\Http\Controllers\API\Auth\ResetPasswordController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\InvoiceController;
 use App\Http\Controllers\API\ItemController;
@@ -21,8 +19,12 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 // Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink']);
-Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgotPassword');
+Route::get('/reset-password/{token}', function ($token) {
+    $email = request()->query('email');
+    return redirect("http://localhost:5173/reset-password?token=$token&email=$email");
+})->name('password.reset');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('resetPassword');
 
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/users', [UserController::class, 'index']);
@@ -61,21 +63,22 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/menu-items/{id}', [MenuItemController::class, 'update']);
         Route::delete('/menu-items/{id}', [MenuItemController::class, 'destroy']);
 
-    Route::apiResource('roles', RoleController::class);
-
+        Route::apiResource('roles', RoleController::class);
     });
 
-// Admin only
-Route::middleware(['role:admin'])->group(function () {
-    Route::get('/tables', [TableController::class, 'index']);
-    Route::post('/tables/bulk-create', [TableController::class, 'bulkCreate']);
-    Route::delete('/tables/{id}', [TableController::class, 'destroy']);
-});
+    // Admin only
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/tables', [TableController::class, 'index']);
+        Route::post('/tables/bulk-create', [TableController::class, 'bulkCreate']);
+        Route::delete('/tables/{id}', [TableController::class, 'destroy']);
+    });
 
-// Admin + Waiter can update status
-Route::middleware(['role:admin,waiter'])->group(function () {
-    Route::put('/tables/{id}', [TableController::class, 'update']);
-});
+    // Admin + Waiter can update status
+    Route::middleware(['role:admin,waiter'])->group(function () {
+        Route::put('/tables/{id}', [TableController::class, 'update']);
+    });
+
+
 
     // Waiter-only routes
     Route::middleware(['role:waiter'])->group(function () {
@@ -84,7 +87,7 @@ Route::middleware(['role:admin,waiter'])->group(function () {
     });
 
     // Admin or Kitchen staff routes
-    Route::middleware(['role:admin,kitchen'])->group(function () {
+    Route::middleware(['role:admin,kitchen,waiter'])->group(function () {
         Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
     });
 
@@ -100,20 +103,20 @@ Route::middleware(['role:admin,waiter'])->group(function () {
     Route::post('/payment/create', [PaymentController::class, 'createPaymentRequest']);
     Route::get('/payment/callback', [PaymentController::class, 'paymentCallback'])->name('payment.callback');
 
-        Route::get('/invoices', [InvoiceController::class, 'index']);
+    Route::get('/invoices', [InvoiceController::class, 'index']);
     Route::get('/invoices/{id}', [InvoiceController::class, 'show']);
 
     Route::get('/dashboard', [AuthController::class, 'dashboard']);
 
-// Items Routes
-Route::apiResource('items', ItemController::class);
+    // Items Routes
+    Route::apiResource('items', ItemController::class);
 
-// Suppliers Routes
-Route::apiResource('suppliers', SupplierController::class);
+    // Suppliers Routes
+    Route::apiResource('suppliers', SupplierController::class);
 
-// Purchase Routes (for adding stock or decreasing stock)
-Route::post('purchases', [PurchaseController::class, 'store']);
-Route::get('purchases', [PurchaseController::class, 'index']);
+    // Purchase Routes (for adding stock or decreasing stock)
+    Route::post('purchases', [PurchaseController::class, 'store']);
+    Route::get('purchases', [PurchaseController::class, 'index']);
 
     // Logout (all authenticated users)
     Route::post('/logout', [AuthController::class, 'logout']);

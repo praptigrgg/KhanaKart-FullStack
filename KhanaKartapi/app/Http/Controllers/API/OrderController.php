@@ -104,22 +104,30 @@ public function show($id)
     return response()->json($order->append('total_amount'));
 }
     public function updateStatus(Request $request, $id)
-    {
-        $request->validate([
-            'status' => 'required|in:pending,preparing,ready,served,completed,cancelled',
-        ]);
+{
+    $request->validate([
+        'status' => 'required|in:pending,preparing,ready,served,completed,cancelled',
+    ]);
 
-        $order = Order::findOrFail($id);
-        $order->status = $request->status;
-        $order->save();
+    $order = Order::with('table')->findOrFail($id);
+    $order->status = $request->status;
+    $order->save();
 
-        $order->load(['items.menuItem', 'table']);
-
-        return response()->json([
-            'message' => 'Order status updated',
-            'order' => $order->append('total_amount'),
-        ]);
+    // 🪄 When an order is cancelled or completed, free the table
+    if (in_array($request->status, ['cancelled', 'completed'])) {
+        if ($order->table) {
+            $order->table->update(['status' => 'available']);
+        }
     }
+
+    $order->load(['items.menuItem', 'table']);
+
+    return response()->json([
+        'message' => 'Order status updated',
+        'order' => $order->append('total_amount'),
+    ]);
+}
+
 
     public function destroy($id)
     {
