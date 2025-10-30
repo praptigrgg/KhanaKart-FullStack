@@ -17,7 +17,8 @@ class Order extends Model
         'discount'
     ];
 
-    protected $appends = ['total_amount'];
+    protected $appends = ['total_amount', 'payment_method_label'];
+
 
     public function items()
     {
@@ -48,4 +49,18 @@ class Order extends Model
         $discountAmount = ($this->discount / 100) * $subtotal;
         return round($subtotal - $discountAmount, 2);
     }
+    public function getPaymentMethodLabelAttribute()
+{
+    if (!$this->is_paid) {
+        return null; // Not paid yet
+    }
+
+    return match ($this->payment_method) {
+        'cash' => 'Paid via Cash',
+        'card' => 'Paid via Card',
+        'qr'   => 'Paid via QR',
+        default => ucfirst($this->payment_method),
+    };
+}
+
 }
