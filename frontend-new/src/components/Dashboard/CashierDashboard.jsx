@@ -221,7 +221,9 @@ const OrderModal = ({ order, close }) => {
                 >
                   {order.is_paid ? 'Paid' : 'Pending'}
                 </span>
+                
               }
+              
             />
             <InfoBox label="Created" value={format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')} />
             <InfoBox label="Order Status" value={order.status || 'N/A'} />

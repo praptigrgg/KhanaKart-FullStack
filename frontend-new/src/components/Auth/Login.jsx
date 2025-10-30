@@ -14,55 +14,39 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  // Redirect on successful login
+  // Auto redirect after successful login
   useEffect(() => {
     if (success) {
-      const timer = setTimeout(() => {
-        navigate('/dashboard');
-      }, 2000);
+      const timer = setTimeout(() => navigate('/dashboard'), 2000);
       return () => clearTimeout(timer);
     }
   }, [success, navigate]);
 
-  // Auto-hide error after 3 seconds
+  // Auto-hide error after 5 seconds
   useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => setError(''), 3000);
-      return () => clearTimeout(timer);
-    }
+    if (!error) return;
+    const timer = setTimeout(() => setError(''), 5000);
+    return () => clearTimeout(timer);
   }, [error]);
 
   const handleSubmit = async (e) => {
-    if (e && e.preventDefault) e.preventDefault(); // prevent page reload
+    e.preventDefault(); // Prevent page refresh
     setLoading(true);
     setError('');
     setSuccess('');
 
     try {
-      const successLogin = await login(email, password);
-      if (successLogin) {
-        setSuccess('Login successful! Redirecting...');
-      } else {
-        setError('Invalid email or password.');
-      }
+      await login(email, password);
+      setSuccess('Login successful! Redirecting...');
     } catch (err) {
-      setError(err.message || 'Something went wrong. Please try again.');
+      setError(err.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
 
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-orange-50">
-        <p className="text-gray-600">Loading...</p>
-      </div>
-    );
-  }
-
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  if (authLoading) return <p className="text-center mt-20">Loading...</p>;
+  if (user) return <Navigate to="/dashboard" replace />;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center p-4">
@@ -121,7 +105,7 @@ const Login = () => {
           </div>
 
           <button
-            type="submit" // safe type
+            type="submit"
             disabled={loading}
             className="w-full bg-orange-600 text-white py-3 px-4 rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >

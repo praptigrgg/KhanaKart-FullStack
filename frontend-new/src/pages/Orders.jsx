@@ -132,25 +132,25 @@ const Orders = () => {
     setSearchParams(params);
   };
 
-const updateOrderStatus = async (orderId, newStatus) => {
-  try {
-    setOperationLoading(true);
-    await orderAPI.updateStatus(orderId, newStatus);
-    toast.success('Order status updated');
+  const updateOrderStatus = async (orderId, newStatus) => {
+    try {
+      setOperationLoading(true);
+      await orderAPI.updateStatus(orderId, newStatus);
+      toast.success('Order status updated');
 
-    if (selectedOrder && selectedOrder.id === orderId) {
-      const response = await orderAPI.getById(orderId);
-      setSelectedOrder(response.data); // refresh modal data
+      if (selectedOrder && selectedOrder.id === orderId) {
+        const response = await orderAPI.getById(orderId);
+        setSelectedOrder(response.data); // refresh modal data
+      }
+
+      fetchOrders();
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      toast.error('Failed to update order status');
+    } finally {
+      setOperationLoading(false);
     }
-
-    fetchOrders();
-  } catch (error) {
-    console.error('Error updating order status:', error);
-    toast.error('Failed to update order status');
-  } finally {
-    setOperationLoading(false);
-  }
-};
+  };
 
 
 
@@ -520,6 +520,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <p className="text-sm font-medium text-gray-500">Status</p>
+
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedOrder.status)}`}>
                     {selectedOrder.status}
                   </span>
@@ -535,6 +536,10 @@ const updateOrderStatus = async (orderId, newStatus) => {
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${selectedOrder.is_paid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                     {selectedOrder.is_paid ? 'Paid' : 'Unpaid'}
                   </span>
+                  {selectedOrder.is_paid && (
+                    <p><strong>{selectedOrder.payment_method_label}</strong></p>
+                  )}
+
                 </div>
               </div>
 
